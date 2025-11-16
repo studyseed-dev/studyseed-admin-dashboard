@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { LoginResponse } from "@/app/api/login/route";
 import { useLocalStorage } from "usehooks-ts";
+
 export default function Login() {
   const router = useRouter();
   const { setIsAuthenticated } = useAuth();
@@ -89,7 +90,11 @@ export default function Login() {
           />
         </Stack>
 
-        {errors.root?.message && <Alert role="alert">{errors?.root?.message}</Alert>}
+        {errors.root?.message && (
+          <Alert role="alert" severity="error">
+            {errors.root.message.toString()}
+          </Alert>
+        )}
 
         <Button disabled={!isValid} variant="contained" type="submit" loading={isSubmitting}>
           Sign In As Admin

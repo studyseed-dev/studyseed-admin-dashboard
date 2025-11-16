@@ -15,7 +15,7 @@ export default async function middleware(req: NextRequest) {
     await jwtVerify(token, new TextEncoder().encode(process.env.JWT_SECRET as string));
     return NextResponse.next();
   } catch (error) {
-    console.error(error);
+    console.error("middleware jwt error, token present:", !!token, error);
     return NextResponse.redirect(new URL("/login", req.url));
   }
 }

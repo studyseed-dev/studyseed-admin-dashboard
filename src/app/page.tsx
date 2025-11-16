@@ -22,7 +22,7 @@ export default function Home() {
         </Stack>
 
         <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 2 }}>
-          <Link href="/manage" passHref>
+          <Link href="/manage" passHref prefetch={false}>
             <Button variant="contained" endIcon={<KeyboardDoubleArrowRightRoundedIcon />}>
               Get Started
             </Button>
