@@ -1,9 +1,11 @@
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { AuthProvider } from "@/context/AuthContext";
-import NavBar from "@/components/NavBar";
+import { Analytics } from "@vercel/analytics/next";
 import { Toaster } from "sonner";
+import { Inter } from "next/font/google";
+
+import NavBar from "@/components/NavBar";
 import Providers from "@/components/Providers";
+import { AuthProvider } from "@/context/AuthContext";
+import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -22,6 +24,7 @@ export default function RootLayout({
           <Providers>
             <NavBar />
             {children}
+            <Analytics />
             <Toaster />
           </Providers>
         </body>
