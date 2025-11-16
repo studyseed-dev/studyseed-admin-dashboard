@@ -8,6 +8,7 @@ export default async function middleware(req: NextRequest) {
   const token = cookies.authToken;
 
   if (!token) {
+    console.error("Token not found: ", token || "undefined token");
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
