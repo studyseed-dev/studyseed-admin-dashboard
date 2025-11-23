@@ -1,6 +1,6 @@
 import { parse } from "cookie";
-import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
+import { jwtVerify } from "jose";
 
 export async function GET(request: Request) {
   try {
@@ -11,10 +11,11 @@ export async function GET(request: Request) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+    const decoded = jwtVerify(token, new TextEncoder().encode(process.env.JWT_SECRET as string));
 
     return NextResponse.json({ message: "Authenticated", user: decoded });
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ message: "Invalid or expired token", error }, { status: 401 });
   }
 }

@@ -30,6 +30,16 @@ export async function POST(request: Request) {
         const e = err as { name?: string; message?: string };
         if (e?.name === "TokenExpiredError" || (e?.message && e.message.includes("jwt expired"))) {
           console.error("Token expired — proceeding to re-authenticate");
+          const clear = NextResponse.next();
+          clear.headers.set(
+            "Set-Cookie",
+            serialize("authToken", "", {
+              httpOnly: true,
+              secure: process.env.NODE_ENV === "production",
+              maxAge: 0,
+              path: "/",
+            })
+          );
           // Do not return here; allow the POST body credentials to be validated below.
         } else {
           // Other token verification errors should be surfaced as unauthorized
@@ -57,7 +67,7 @@ export async function POST(request: Request) {
     }
 
     // if login successful, generate an auth token for user
-    const token = jwt.sign({ _email: adminUser.email }, process.env.JWT_SECRET as string, {
+    const token = jwt.sign({ email: adminUser.email }, process.env.JWT_SECRET as string, {
       expiresIn: "1h",
     });
 
@@ -71,7 +81,7 @@ export async function POST(request: Request) {
       serialize("authToken", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        maxAge: 60 * 60 * 12,
+        maxAge: 60 * 60,
         path: "/",
       })
     );

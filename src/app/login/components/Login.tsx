@@ -60,7 +60,7 @@ export default function Login() {
       const result: LoginResponse = await response.json();
       if (!adminProfile) setAdminProfile(result?.adminUser);
       setIsAuthenticated(true);
-      router.push("/");
+      router.push("/manage");
     } catch (error) {
       console.error("Unexpected error:", error);
     }
