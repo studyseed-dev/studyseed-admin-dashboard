@@ -18,10 +18,24 @@ export async function POST(request: Request) {
     const cookies = parse(request.headers.get("cookie") || "");
     const existingToken = cookies.authToken;
 
-    // If token exists, verify it
+    // If token exists, verify it. If it's expired, allow the request to continue
+    // so the user can re-authenticate instead of failing the whole request.
     if (existingToken) {
-      const decoded = jwt.verify(existingToken, process.env.JWT_SECRET as string);
-      return NextResponse.json({ message: "User already logged in", user: decoded });
+      try {
+        const decoded = jwt.verify(existingToken, process.env.JWT_SECRET as string);
+
+        return NextResponse.json({ message: "User already logged in", user: decoded });
+      } catch (err: unknown) {
+        // TokenExpiredError from jsonwebtoken has name === 'TokenExpiredError'
+        const e = err as { name?: string; message?: string };
+        if (e?.name === "TokenExpiredError" || (e?.message && e.message.includes("jwt expired"))) {
+          console.error("Token expired — proceeding to re-authenticate");
+          // Do not return here; allow the POST body credentials to be validated below.
+        } else {
+          // Other token verification errors should be surfaced as unauthorized
+          return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+        }
+      }
     }
 
     const requestBody: ZodAdminSchema = await request.json();

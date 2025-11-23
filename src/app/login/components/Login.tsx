@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { LoginResponse } from "@/app/api/login/route";
 import { useLocalStorage } from "usehooks-ts";
+import { DashboardAPIPath } from "@/enums/apiPaths.enum";
 export default function Login() {
   const router = useRouter();
   const { setIsAuthenticated } = useAuth();
@@ -17,6 +18,14 @@ export default function Login() {
       serializer: (value) => JSON.stringify(value),
     }
   );
+
+  type LoginError = {
+    error: {
+      name: string;
+      message: string;
+      expiredAt: string;
+    };
+  };
 
   const {
     register,
@@ -30,7 +39,7 @@ export default function Login() {
 
   const onSubmit = async (data: unknown) => {
     try {
-      const response = await fetch("/api/login", {
+      const response = await fetch(DashboardAPIPath.LOGIN, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -39,10 +48,11 @@ export default function Login() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData: LoginError = await response.json();
+
         setError("root", {
           type: "manual",
-          message: `${errorData.error}`,
+          message: `${errorData.error.message}`,
         });
         setFocus("email");
         return;
@@ -89,7 +99,7 @@ export default function Login() {
           />
         </Stack>
 
-        {errors.root?.message && <Alert role="alert">{errors?.root?.message}</Alert>}
+        {errors.root?.message && <Alert role="alert">{errors?.root.message}?</Alert>}
 
         <Button disabled={!isValid} variant="contained" type="submit" loading={isSubmitting}>
           Sign In As Admin

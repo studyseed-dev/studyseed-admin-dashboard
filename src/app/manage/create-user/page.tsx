@@ -42,7 +42,7 @@ export default function CreateUser() {
 
         <BasicContainer sx={{ p: 3, gap: 3 }}>
           <Typography variant="h5">Newly Added Users</Typography>
-          <UserTable userArray={userArray} />
+          <UserTable paginatedUsers={userArray} />
         </BasicContainer>
       </Box>
     </FormProvider>

@@ -15,6 +15,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { DashboardAPIPath } from "@/enums/apiPaths.enum";
 
 type Data = {
   users: ZodUserSchema[];
@@ -31,7 +32,9 @@ const UserTable = dynamic(() => import("@/components/UserTable"), {
 const getAllUsers = async (queryKey: [string, string, number]) => {
   const page = queryKey[2];
   const searchTerm = queryKey[1];
-  const response = await fetch(`/api/get-paginated-users?searchTerm=${searchTerm}&page=${page}`);
+  const response = await fetch(
+    `${DashboardAPIPath.GET_PAGINATED_USERS}?searchTerm=${searchTerm}&page=${page}`
+  );
   if (response.ok) {
     const resObj = await response.json();
     const { data } = resObj;
@@ -52,7 +55,7 @@ export default function UserOverview() {
   const totalPages = Math.ceil((data?.totalUsers ?? 0) / (data?.limitNumber ?? 0));
   const pageArray = !!totalPages && new Array(totalPages).fill(0);
 
-  const filteredUsers = data?.users?.filter(
+  const paginatedUsers = data?.users?.filter(
     (user) =>
       user.userid.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -61,10 +64,8 @@ export default function UserOverview() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchString = e.target.value;
-    // if (searchString.length % 2 === 0) {
     setCurrentPage(1);
     setSearchTerm(searchString);
-    // }
   };
 
   return (
@@ -84,7 +85,7 @@ export default function UserOverview() {
           placeholder="Filter users by ID or Name"
           onChange={(e) => handleChange(e)}
         />
-        <UserTable userArray={filteredUsers} caption="All users in the database" />
+        <UserTable paginatedUsers={paginatedUsers} caption="All registered users" />
         <Pagination>
           <PaginationContent>
             <PaginationItem>
@@ -96,7 +97,7 @@ export default function UserOverview() {
             </PaginationItem>
 
             {pageArray &&
-              pageArray?.map((page, index) => {
+              pageArray?.map((_, index) => {
                 const isActive = index + 1 === currentPage;
                 return (
                   <PaginationItem key={`page ${index + 1}`}>
