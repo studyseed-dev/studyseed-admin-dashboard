@@ -12,8 +12,8 @@ import {
 } from "@mui/material";
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { ZodUserSchema } from "@/lib/adminSchema";
-
-const courses = ["GES", "GES2"] as const;
+import { Course } from "@/enums/courses.enum";
+import { courses } from "@/lib/types";
 
 export default function EnrolledCoursesDialog({
   open,
@@ -53,20 +53,25 @@ export default function EnrolledCoursesDialog({
             margin="normal"
           >
             <label id="course-select-label">Available Courses</label>
-            {courses.map((course) => (
-              <Box key={course}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      value={course}
-                      checked={fieldArray.some((field) => field.course === course)}
-                      onChange={(e) => handleCheckBoxChange(course, e.target.checked)}
-                    />
-                  }
-                  label={course}
-                />
-              </Box>
-            ))}
+            {courses.map((course) => {
+              const isCourseDisabled = course === Course.GES || course === Course.GES2;
+              return (
+                <Box key={course}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        value={course}
+                        checked={fieldArray.some((field) => field.course === course)}
+                        onChange={(e) => handleCheckBoxChange(course, e.target.checked)}
+                        aria-disabled={isCourseDisabled}
+                        disabled={isCourseDisabled}
+                      />
+                    }
+                    label={`${course}${isCourseDisabled ? " — Course Completed" : ""}`}
+                  />
+                </Box>
+              );
+            })}
             {errors.enrolled_courses && (
               <FormHelperText>{errors.enrolled_courses.message}</FormHelperText>
             )}
