@@ -17,10 +17,12 @@ import { ZodUserSchema } from "@/lib/adminSchema";
 import { Courses } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useFieldArray, useFormContext } from "react-hook-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { generateRandomLetters, initializeProgress } from "@/lib/helperFunctions";
 import AddIcon from "@mui/icons-material/Add";
 import { useLocalStorage } from "usehooks-ts";
 import BasicContainer from "@/components/BasicContainer";
+import { DashboardAPIPath } from "@/enums/apiPaths.enum";
 
 export default function CreateUserForm() {
   const router = useRouter();
@@ -40,7 +42,8 @@ export default function CreateUserForm() {
 
   const { remove } = useFieldArray({ control, name: "enrolled_courses" });
 
-  const [userArr, setUserArr] = useLocalStorage<ZodUserSchema[]>("new-users", []);
+  // only need setter here; the stored array itself isn't used directly in this component
+  const [, setUserArr] = useLocalStorage<ZodUserSchema[]>("new-users", []);
 
   const [open, setOpen] = useState(false);
   const [showRedirecting, setShowRedirecting] = useState(false);
@@ -54,54 +57,77 @@ export default function CreateUserForm() {
 
   const onSubmit = async () => {
     try {
+      // Small artificial delay to keep parity with previous behavior
       await new Promise((resolve) => setTimeout(resolve, 1500));
+
       const formData = getValues();
       const reqBody = {
         ...formData,
         progress: initializeProgress(
-          formData.enrolled_courses.map((courseObj) => {
-            return courseObj.course;
-          }) as Courses[]
+          formData.enrolled_courses.map((courseObj) => courseObj.course) as Courses[]
         ),
       };
 
-      const response = await fetch("/api/create-new-user", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(reqBody),
-      });
-
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        setError("root", {
-          type: "manual",
-          message: `${responseData.message}`,
-        });
-        if (response.status === 401) {
-          setShowRedirecting(true);
-          setTimeout(() => router.push("/"), 3000);
-        }
-        if (response.status === 409) {
-          resetField("userid");
-          setFocus("userid");
-        }
-        return;
-      }
-
-      if (responseData && responseData.savedResult) {
-        const updatedUserArr = [...userArr, responseData.savedResult];
-        setUserArr(updatedUserArr);
-      }
-
-      reset();
-      setSnackBarOpen(true);
+      // Use the mutation hook to perform the POST request
+      // mutateAsync generics can be awkward in this project's TS setup; use ts-ignore to call with the prepared body
+      // (the mutation is typed above via CreateUserBody)
+      await createUserMutation.mutateAsync(reqBody);
     } catch (error) {
+      // Errors are handled in mutation onError, but log unexpected ones
       console.error("Unexpected error:", error);
     }
   };
+
+  // --- React Query mutation: create a new user ---
+  const queryClient = useQueryClient();
+
+  type CreateUserResponse = { savedResult?: ZodUserSchema; message?: string };
+  type CreateUserBody = ZodUserSchema & { progress: Record<string, unknown> };
+
+  const createUserFn = async (body: CreateUserBody) => {
+    const res = await fetch(DashboardAPIPath.CREATE_NEW_USER, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      const err = new Error(data?.message || "Error creating user") as Error & { status?: number };
+      err.status = res.status;
+      throw err;
+    }
+    return data;
+  };
+
+  const createUserMutation = useMutation<
+    CreateUserResponse,
+    Error & { status?: number },
+    CreateUserBody
+  >({
+    mutationFn: createUserFn,
+    onSuccess: (data: CreateUserResponse) => {
+      if (data && data.savedResult) {
+        setUserArr((prev) => [...(prev ?? []), data.savedResult as ZodUserSchema]);
+      }
+      // Invalidate any users query so other components can refetch
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      reset();
+      setSnackBarOpen(true);
+    },
+    onError: (error: Error & { status?: number }) => {
+      // Mirror previous behavior for specific status codes
+      const status = error?.status;
+      setError("root", { type: "manual", message: error?.message || "Unexpected error" });
+      if (status === 401) {
+        setShowRedirecting(true);
+        setTimeout(() => router.push("/"), 3000);
+      }
+      if (status === 409) {
+        resetField("userid");
+        setFocus("userid");
+      }
+    },
+  });
 
   const handleAutoGenerate = () => {
     const { first_name, last_name } = getValues();

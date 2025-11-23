@@ -3,7 +3,6 @@
 import { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/context/AuthContext";
-import { Toaster } from "sonner";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 
 const queryClient = new QueryClient();
@@ -16,10 +15,7 @@ const Providers = ({ children }: ProvidersProps) => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <AppRouterCacheProvider>
-          {children}
-          <Toaster />
-        </AppRouterCacheProvider>
+        <AppRouterCacheProvider>{children}</AppRouterCacheProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
