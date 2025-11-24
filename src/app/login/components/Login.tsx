@@ -3,13 +3,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { adminSchema, ZodAdminSchema } from "@/lib/adminSchema";
 import { Alert, Button, Stack, TextField } from "@mui/material";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { LoginResponse } from "@/app/api/login/route";
 import { useLocalStorage } from "usehooks-ts";
 import { DashboardAPIPath } from "@/enums/apiPaths.enum";
+
 export default function Login() {
-  const router = useRouter();
   const { setIsAuthenticated } = useAuth();
   const [adminProfile, setAdminProfile] = useLocalStorage<ZodAdminSchema | null>(
     "admin-profile",
@@ -60,7 +59,7 @@ export default function Login() {
       const result: LoginResponse = await response.json();
       if (!adminProfile) setAdminProfile(result?.adminUser);
       setIsAuthenticated(true);
-      router.push("/");
+      window.location.href = "/manage";
     } catch (error) {
       console.error("Unexpected error:", error);
     }
