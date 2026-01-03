@@ -9,6 +9,7 @@ import BasicContainer from "@/components/BasicContainer";
 
 import dynamic from "next/dynamic";
 import Loading from "../components/loading";
+import { Topic } from "@/enums/topics.enum";
 
 const UserTable = dynamic(() => import("@/components/UserTable"), {
   loading: () => <Loading />,
@@ -22,7 +23,7 @@ export default function CreateUser() {
     resolver: zodResolver(userSchema),
     defaultValues: {
       enrolled_courses: [],
-      courses: ["LITERACY", "NUMERACY"],
+      courses: [Topic.LITERACY, Topic.NUMERACY],
     },
     mode: "onChange",
   });

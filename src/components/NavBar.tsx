@@ -40,6 +40,10 @@ const dashboardPages = [
     pageName: "Users Overview",
     href: DashboardPagePath.USERS_OVERVIEW,
   },
+  {
+    pageName: "Manage Questions",
+    href: DashboardPagePath.MANAGE_QUESTIONS,
+  },
 ];
 
 export default function NavBar() {
