@@ -67,7 +67,7 @@ export default function QuestionRenderer({ question }: { question: Question }) {
           <p className="mt-2 text-sm text-green-600 font-medium">
             Correct answer:
             {Array.isArray(question.correct_answer)
-              ? question.correct_answer.join("")
+              ? question.correct_answer.join("_")
               : String(question.correct_answer)}
           </p>
         </>

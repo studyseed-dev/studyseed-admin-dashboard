@@ -18,7 +18,6 @@ export function FillBlankForm({ question }: FillBlankFormProps) {
     register,
     handleSubmit,
     formState: { errors },
-
     watch,
     setValue,
   } = useForm<ZodFillBlankSchema>({

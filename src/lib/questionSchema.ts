@@ -45,11 +45,9 @@ export const TrueFalseSchema = BaseQuestionSchema.extend({
 // Drag and Drop Schema
 export const DragAndDropSchema = BaseQuestionSchema.extend({
   question_style: z.literal("drag_and_drop"),
-  possible_answers: z.array(z.string()).optional(),
   correct_answer: z
     .array(z.string().min(1, { message: "Answer cannot be empty" }))
     .min(1, { message: "At least one correct answer is required" }),
-  no_of_ans_box: z.number().int().positive().optional(),
 });
 
 // Matching Schema

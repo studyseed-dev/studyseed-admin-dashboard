@@ -58,15 +58,13 @@ export interface MCQtype extends BaseQuestion {
 // Drag-and-Drop-specific interface
 export interface DndType extends BaseQuestion {
   question_style: "drag_and_drop";
-  possible_answers?: string[];
-  correct_answer: string[]; // Correct answers for drag-and-drop can be an array of strings
-  no_of_ans_box?: number;
+  correct_answer: string[];
 }
 
 // Matching-specific interface
 export interface MatchingType extends BaseQuestion {
   question_style: "matching";
-  correct_answer: { [key: string]: string }; // Array of option-answer pairs
+  correct_answer: Record<string, string>;
   options: string[];
   answers: string[];
 }

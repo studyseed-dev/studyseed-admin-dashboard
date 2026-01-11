@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { FillBlankForm } from "./FillBlankForm";
 import { TrueFalseForm } from "./TrueFalseForm";
 import { MSQForm } from "./MSQForm";
+import { DndForm } from "./DnDForm";
 
 interface QuestionEditorProps {
   question: Question;
@@ -37,12 +38,7 @@ export default function QuestionEditor({ question }: QuestionEditorProps) {
         return <FillBlankForm question={question} />;
       case "drag_and_drop":
         // TODO: Implement DragAndDropForm component
-        return (
-          <div className="space-y-4">
-            <p className="text-red-600">Drag and Drop form not yet implemented</p>
-            <Button variant="secondary">Close</Button>
-          </div>
-        );
+        return <DndForm question={question} />;
 
       case "tnd":
         // TODO: Implement TapAndDropForm component
@@ -76,6 +72,9 @@ export default function QuestionEditor({ question }: QuestionEditorProps) {
     <div className="w-full bg-white rounded-lg border-2 border-blue-500 p-6">
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-2xl font-bold text-blue-600">Edit Question</h3>
+        <span className="px-3 py-1 text-xs font-medium bg-[#3380fc] text-white rounded-full">
+          {question.question_style}
+        </span>
       </div>
 
       {renderEditor()}
