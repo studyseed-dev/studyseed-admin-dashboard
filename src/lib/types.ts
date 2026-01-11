@@ -1,4 +1,6 @@
 import { Course } from "@/enums/courses.enum";
+import { Topic } from "@/enums/topics.enum";
+import { ZodQuestionSchema } from "./questionSchema";
 
 export const topics = ["LITERACY", "NUMERACY"];
 export const courses = [Course.GES, Course.GES2, Course.GLP];
@@ -16,4 +18,12 @@ export type Courses = (typeof courses)[number];
 
 export type ProgressModel = {
   [K in Courses]: ModuleTopic;
+};
+
+export type UpdateQuestionPayload = {
+  course?: Course;
+  topic: Topic;
+  module_id?: string;
+  question_number: string;
+  updates: ZodQuestionSchema;
 };

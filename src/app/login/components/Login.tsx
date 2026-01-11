@@ -84,10 +84,10 @@ export default function Login() {
             error={!!errors.email}
             sx={{ flex: 1 }}
             helperText={errors.email && errors.email.message}
-            slotProps={{ htmlInput: { autoComplete: "off" } }}
           />
 
           <TextField
+            type="password"
             {...register("password")}
             label="Password"
             variant="outlined"

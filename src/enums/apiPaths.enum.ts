@@ -4,4 +4,5 @@ export enum DashboardAPIPath {
   DELETE_USER = "/api/delete-user",
   GET_PAGINATED_USERS = "/api/get-paginated-users",
   GET_TOPIC_DATA = "/api/get-topic-data",
+  UPDATE_QUESTION = "/api/update-question",
 }

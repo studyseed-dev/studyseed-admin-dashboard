@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
 
     const gameQuestions = (await fetchQuestions(courseEnrolled, topic)) as QuestionSchema;
 
-    if (gameQuestions.error) {
+    if (gameQuestions && gameQuestions.error) {
       return NextResponse.json({ error: gameQuestions.error }, { status: 400 });
     }
 
