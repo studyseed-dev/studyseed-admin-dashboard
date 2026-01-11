@@ -2,8 +2,9 @@ import React from "react";
 import { Question } from "@/lib/questionTypes";
 import { MCQForm } from "./MCQForm";
 import { Button } from "@/components/ui/button";
-import { FillBlankForm } from "./OtherForms";
+import { FillBlankForm } from "./FillBlankForm";
 import { TrueFalseForm } from "./TrueFalseForm";
+import { MSQForm } from "./MSQForm";
 
 interface QuestionEditorProps {
   question: Question;
@@ -19,12 +20,7 @@ export default function QuestionEditor({ question }: QuestionEditorProps) {
 
       case "multiple_selection":
         // TODO: Implement MSQForm component
-        return (
-          <div className="space-y-4">
-            <p className="text-red-600">Multiple Selection form not yet implemented</p>
-            <Button variant="secondary">Close</Button>
-          </div>
-        );
+        return <MSQForm question={question} />;
 
       case "true_false":
         return <TrueFalseForm question={question} />;

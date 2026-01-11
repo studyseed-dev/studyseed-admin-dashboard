@@ -6,28 +6,28 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
-import { MCQSchema, ZodMCQSchema } from "@/lib/questionSchema";
-import { MCQtype } from "@/lib/questionTypes";
+import { Checkbox } from "@/components/ui/checkbox";
+import { MSQSchema, ZodMSQSchema } from "@/lib/questionSchema";
+import { MSQtype } from "@/lib/questionTypes";
 import { useQuestions } from "@/hooks/useQuestions";
 
 import { FormActionButtons } from "./FormActionButtons";
 
-interface MCQFormProps {
-  question: MCQtype;
+interface MSQFormProps {
+  question: MSQtype;
 }
 
-export const MCQForm = ({ question }: MCQFormProps) => {
+export const MSQForm = ({ question }: MSQFormProps) => {
   const { setEditingQuestion, isQuestionUpdating, handleUpdateQuestion } = useQuestions();
 
-  const form = useForm<ZodMCQSchema>({
-    resolver: zodResolver(MCQSchema),
+  const form = useForm<ZodMSQSchema>({
+    resolver: zodResolver(MSQSchema),
     defaultValues: {
       question_number: question.question_number,
       question_text: question.question_text,
-      question_style: "multiple_choice_question",
+      question_style: "multiple_selection",
       possible_answers: question.possible_answers || ["", "", "", ""],
-      correct_answer: question.correct_answer || "",
+      correct_answer: question.correct_answer || [],
       hint: question.hint || "",
       question_label: question.question_label,
       image: question.image,
@@ -36,7 +36,22 @@ export const MCQForm = ({ question }: MCQFormProps) => {
   });
 
   const possibleAnswers = form.watch("possible_answers");
-  const currentCorrect = form.watch("correct_answer");
+  const currentCorrectAnswers = form.watch("correct_answer");
+
+  const handleCheckboxChange = (answer: string, checked: boolean) => {
+    const current = currentCorrectAnswers || [];
+    if (checked) {
+      form.setValue("correct_answer", [...current, answer], {
+        shouldValidate: true,
+      });
+    } else {
+      form.setValue(
+        "correct_answer",
+        current.filter((a) => a !== answer),
+        { shouldValidate: true }
+      );
+    }
+  };
 
   return (
     <form onSubmit={form.handleSubmit(handleUpdateQuestion)} className="space-y-4">
@@ -108,9 +123,12 @@ export const MCQForm = ({ question }: MCQFormProps) => {
                         next[i] = newValue;
                         field.onChange(next);
 
-                        // If this was the correct answer, update correct_answer too
-                        if (prev === currentCorrect) {
-                          form.setValue("correct_answer", newValue, {
+                        // If this was a correct answer, update it in correct_answer array
+                        if (currentCorrectAnswers.includes(prev)) {
+                          const updatedCorrect = currentCorrectAnswers.map((ans) =>
+                            ans === prev ? newValue : ans
+                          );
+                          form.setValue("correct_answer", updatedCorrect, {
                             shouldValidate: true,
                           });
                         }
@@ -126,27 +144,27 @@ export const MCQForm = ({ question }: MCQFormProps) => {
           )}
         />
 
-        {/* Correct Answer */}
+        {/* Correct Answers */}
         <Controller
           name="correct_answer"
           control={form.control}
-          render={({ field, fieldState }) => (
+          render={({ fieldState }) => (
             <Field>
               <FieldLabel className="text-sm font-medium text-green-600">
-                Correct Answer *
+                Correct Answers * (select all that apply)
               </FieldLabel>
-              <NativeSelect
-                {...field}
-                className="border rounded px-2 py-1"
-                aria-invalid={fieldState.invalid}
-              >
-                <NativeSelectOption value="">Select correct answer</NativeSelectOption>
+              <div className="space-y-2">
                 {possibleAnswers.map((ans: string, i: number) => (
-                  <NativeSelectOption key={i} value={ans}>
-                    {ans || `Option ${i + 1}`}
-                  </NativeSelectOption>
+                  <div key={i} className="flex items-center gap-2">
+                    <Checkbox
+                      checked={currentCorrectAnswers.includes(ans)}
+                      onCheckedChange={(checked: boolean) => handleCheckboxChange(ans, checked)}
+                      disabled={!ans}
+                    />
+                    <span className="text-sm">{ans || `Option ${i + 1}`}</span>
+                  </div>
                 ))}
-              </NativeSelect>
+              </div>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}

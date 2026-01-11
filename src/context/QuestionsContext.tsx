@@ -10,6 +10,7 @@ import { Question } from "@/lib/questionTypes";
 import { GLPQuestionsPayload, Module } from "@/Models/GLPQuestion";
 import { updateQuestionFn } from "@/lib/networkFunctions";
 import { UpdateQuestionPayload } from "@/lib/types";
+import { ZodQuestionSchema } from "@/lib/questionSchema";
 
 export interface QuestionsContextType {
   selectedTopic: Topic;
@@ -25,7 +26,7 @@ export interface QuestionsContextType {
   editingQuestion: Question | null;
   setEditingQuestion: (question: Question | null) => void;
   isQuestionUpdating: boolean;
-  updateQuestion: (data: UpdateQuestionPayload) => Promise<unknown>;
+  handleUpdateQuestion: (updates: ZodQuestionSchema) => void;
 }
 
 export const QuestionsContext = createContext<QuestionsContextType | undefined>(undefined);
@@ -62,7 +63,7 @@ export const QuestionsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     enabled: !!selectedCourse && !!selectedTopic,
   });
 
-  const { isPending: isQuestionUpdating, mutateAsync: updateQuestion } = useMutation({
+  const { isPending: isQuestionUpdating, mutateAsync } = useMutation({
     mutationFn: updateQuestionFn,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["topic-data", selectedTopic, selectedCourse] });
@@ -70,6 +71,17 @@ export const QuestionsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setEditingQuestion(null);
     },
   });
+
+  const handleUpdateQuestion = (updates: ZodQuestionSchema) => {
+    const updatePayload: UpdateQuestionPayload = {
+      course: selectedCourse,
+      topic: selectedTopic,
+      module_id: selectedModule,
+      question_number: updates.question_number,
+      updates: updates,
+    };
+    mutateAsync(updatePayload);
+  };
 
   const selectTopic = useCallback((topic: Topic | undefined) => {
     if (topic) setSelectedTopic(topic);
@@ -108,7 +120,7 @@ export const QuestionsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         editingQuestion,
         setEditingQuestion,
         isQuestionUpdating,
-        updateQuestion,
+        handleUpdateQuestion,
       }}
     >
       {children}

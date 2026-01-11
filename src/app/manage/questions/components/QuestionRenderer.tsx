@@ -59,14 +59,15 @@ export default function QuestionRenderer({ question }: { question: Question }) {
         </>
       );
 
+    // Rearrange
     case "drag_and_drop":
       return (
         <>
           <span>{question.question_text}</span>
           <p className="mt-2 text-sm text-green-600 font-medium">
-            Correct answer:{" "}
+            Correct answer:
             {Array.isArray(question.correct_answer)
-              ? question.correct_answer.join(", ")
+              ? question.correct_answer.join("")
               : String(question.correct_answer)}
           </p>
         </>

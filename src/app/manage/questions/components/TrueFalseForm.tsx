@@ -8,7 +8,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { ZodTrueFalseSchema, TrueFalseSchema } from "@/lib/questionSchema";
 import { TrueFalseType } from "@/lib/questionTypes";
 import { useQuestions } from "@/hooks/useQuestions";
-import { UpdateQuestionPayload } from "@/lib/types";
 import { FormActionButtons } from "./FormActionButtons";
 
 interface TrueFalseFormProps {
@@ -34,30 +33,12 @@ export function TrueFalseForm({ question }: TrueFalseFormProps) {
       image: question.image,
     },
   });
-  const {
-    selectedCourse,
-    selectedTopic,
-    selectedModule: module_id,
-    setEditingQuestion,
-    updateQuestion,
-    isQuestionUpdating,
-  } = useQuestions();
+  const { setEditingQuestion, handleUpdateQuestion, isQuestionUpdating } = useQuestions();
 
   const correctAnswer = watch("correct_answer");
 
-  const onSubmit = (data: ZodTrueFalseSchema) => {
-    const updatePayload: UpdateQuestionPayload = {
-      course: selectedCourse,
-      topic: selectedTopic,
-      module_id,
-      question_number: data.question_number,
-      updates: data,
-    };
-    updateQuestion(updatePayload);
-  };
-
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full">
+    <form onSubmit={handleSubmit(handleUpdateQuestion)} className="space-y-6 w-full">
       {/* Question Number */}
       <div>
         <label className="block text-sm font-semibold mb-2 text-gray-700">Question Number</label>

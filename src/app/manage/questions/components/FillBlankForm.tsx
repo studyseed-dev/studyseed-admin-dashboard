@@ -1,5 +1,5 @@
 import React from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FillBlankSchema, ZodFillBlankSchema } from "@/lib/questionSchema";
 import { FillBlankType } from "@/lib/questionTypes";
@@ -7,22 +7,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2 } from "lucide-react";
-
-// =====================
-// FILL IN THE BLANK FORM
-// =====================
+import { FormActionButtons } from "./FormActionButtons";
+import { useQuestions } from "@/hooks/useQuestions";
 interface FillBlankFormProps {
   question: FillBlankType;
-  onSave?: (data: ZodFillBlankSchema) => void;
-  onCancel?: () => void;
 }
 
-export function FillBlankForm({ question, onSave, onCancel }: FillBlankFormProps) {
+export function FillBlankForm({ question }: FillBlankFormProps) {
   const {
     register,
     handleSubmit,
     formState: { errors },
-    control,
+
     watch,
     setValue,
   } = useForm<ZodFillBlankSchema>({
@@ -40,22 +36,23 @@ export function FillBlankForm({ question, onSave, onCancel }: FillBlankFormProps
       question_label: question.question_label,
     },
   });
+  const { setEditingQuestion, handleUpdateQuestion, isQuestionUpdating } = useQuestions();
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "correct_answer",
-  });
-
-  const numOfTextBox = watch("num_of_text_box");
-  const capitalisation = watch("capitalisation");
-
-  const onSubmit = (data: ZodFillBlankSchema) => {
-    console.log("Fill in the Blank form submitted:", data);
-    onSave?.(data);
+  const answers = watch("correct_answer");
+  const addAnswer = (answer: string) => {
+    setValue("correct_answer", [...answers, answer]);
   };
 
+  const removeAnswer = (index: number) => {
+    setValue(
+      "correct_answer",
+      answers.filter((_, i) => i !== index)
+    );
+  };
+  const capitalisation = watch("capitalisation");
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full">
+    <form onSubmit={handleSubmit(handleUpdateQuestion)} className="space-y-6 w-full">
       {/* Question Number */}
       <div>
         <label className="block text-sm font-semibold mb-2 text-gray-700">Question Number</label>
@@ -120,7 +117,9 @@ export function FillBlankForm({ question, onSave, onCancel }: FillBlankFormProps
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => append("")}
+            onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) =>
+              addAnswer(e.currentTarget.value)
+            }
             className="flex items-center gap-2"
           >
             <Plus size={16} />
@@ -129,19 +128,19 @@ export function FillBlankForm({ question, onSave, onCancel }: FillBlankFormProps
         </div>
 
         <div className="space-y-3">
-          {fields.map((field, index) => (
-            <div key={field.id} className="flex items-center gap-3">
+          {answers.map((answer, index) => (
+            <div key={`answer-${index}`} className="flex items-center gap-3">
               <Input
                 {...register(`correct_answer.${index}`)}
                 placeholder={`Answer ${index + 1}`}
                 className={errors.correct_answer?.[index] ? "border-red-500 flex-1" : "flex-1"}
               />
-              {fields.length > 1 && (
+              {answer.length > 1 && (
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  onClick={() => remove(index)}
+                  onClick={() => removeAnswer(index)}
                   className="text-red-600 hover:text-red-700 hover:bg-red-50"
                 >
                   <Trash2 size={18} />
@@ -178,17 +177,10 @@ export function FillBlankForm({ question, onSave, onCancel }: FillBlankFormProps
         {errors.hint && <p className="text-red-500 text-sm mt-1">{errors.hint.message}</p>}
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex gap-3 justify-end pt-4 border-t">
-        {onCancel && (
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-        )}
-        <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
-          Save Question
-        </Button>
-      </div>
+      <FormActionButtons
+        isUpdating={isQuestionUpdating}
+        onCancel={() => setEditingQuestion(null)}
+      />
     </form>
   );
 }
