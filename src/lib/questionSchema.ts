@@ -53,15 +53,14 @@ export const DragAndDropSchema = BaseQuestionSchema.extend({
 // Matching Schema
 export const MatchingSchema = BaseQuestionSchema.extend({
   question_style: z.literal("matching"),
-  correct_answer: z.record(z.string(), z.string()).refine((val) => Object.keys(val).length > 0, {
-    message: "At least one matching pair is required",
-  }),
-  options: z
-    .array(z.string().min(1, { message: "Option cannot be empty" }))
-    .min(2, { message: "At least 2 options required" }),
-  answers: z
-    .array(z.string().min(1, { message: "Answer cannot be empty" }))
-    .min(2, { message: "At least 2 answers required" }),
+  correct_answer: z
+    .record(
+      z.string().trim().min(1, "Option cannot be empty"),
+      z.string().trim().min(1, "Answer cannot be empty")
+    )
+    .refine((val) => Object.keys(val).length > 0, {
+      message: "At least one matching pair is required",
+    }),
 });
 
 // Fill in the Blank Schema

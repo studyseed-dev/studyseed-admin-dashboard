@@ -58,7 +58,7 @@ export async function POST(request: Request) {
 
     // if login successful, generate an auth token for user
     const token = jwt.sign({ _email: adminUser.email }, process.env.JWT_SECRET as string, {
-      expiresIn: "1h",
+      expiresIn: "6h",
     });
 
     const response = NextResponse.json(

@@ -6,6 +6,7 @@ import { FillBlankForm } from "./FillBlankForm";
 import { TrueFalseForm } from "./TrueFalseForm";
 import { MSQForm } from "./MSQForm";
 import { DndForm } from "./DnDForm";
+import { MatchingForm } from "./MatchingForm";
 
 interface QuestionEditorProps {
   question: Question;
@@ -27,17 +28,12 @@ export default function QuestionEditor({ question }: QuestionEditorProps) {
         return <TrueFalseForm question={question} />;
 
       case "matching":
-        return (
-          <div className="space-y-4">
-            <p className="text-red-600">Matching form not yet implemented</p>
-            <Button variant="secondary">Close</Button>
-          </div>
-        );
+        return <MatchingForm question={question} />;
 
       case "fill_in_the_blank":
         return <FillBlankForm question={question} />;
+
       case "drag_and_drop":
-        // TODO: Implement DragAndDropForm component
         return <DndForm question={question} />;
 
       case "tnd":
