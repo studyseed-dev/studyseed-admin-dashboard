@@ -13,7 +13,6 @@ import {
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { ZodUserSchema } from "@/lib/adminSchema";
 import { Course } from "@/enums/courses.enum";
-import { courses } from "@/lib/types";
 
 export default function EnrolledCoursesDialog({
   open,
@@ -53,7 +52,7 @@ export default function EnrolledCoursesDialog({
             margin="normal"
           >
             <label id="course-select-label">Available Courses</label>
-            {courses.map((course) => {
+            {Object.values(Course).map((course) => {
               const isCourseDisabled = course === Course.GES || course === Course.GES2;
               return (
                 <Box key={course}>

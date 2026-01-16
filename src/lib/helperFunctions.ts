@@ -1,8 +1,9 @@
-import { Courses, ProgressModel } from "./types";
+import { Course } from "@/enums/courses.enum";
+import { ProgressModel } from "./types";
 
-export const initializeProgress = (courses: Courses[]): Partial<ProgressModel> => {
+export const initializeProgress = (courses: Course[]): Partial<ProgressModel> => {
   const initialData = {} as Partial<ProgressModel>; // use type assertion here to tell TS that the empty object will eventually have the shape of ProgressModel
-  courses.forEach((course: Courses) => {
+  courses.forEach((course: Course) => {
     initialData[course] = {
       LITERACY: {},
       NUMERACY: {},

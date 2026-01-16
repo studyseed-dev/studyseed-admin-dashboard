@@ -1,3 +1,4 @@
+import React, { SyntheticEvent, useState } from "react";
 import {
   Box,
   Stack,
@@ -11,18 +12,18 @@ import {
   Snackbar,
   SnackbarCloseReason,
 } from "@mui/material";
-import React, { SyntheticEvent, useState } from "react";
-import EnrolledCoursesDialog from "./EnrolledCoursesDialog";
-import { ZodUserSchema } from "@/lib/adminSchema";
-import { Courses } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLocalStorage } from "usehooks-ts";
+
+import { ZodUserSchema } from "@/lib/adminSchema";
 import { generateRandomLetters, initializeProgress } from "@/lib/helperFunctions";
 import AddIcon from "@mui/icons-material/Add";
-import { useLocalStorage } from "usehooks-ts";
 import BasicContainer from "@/components/BasicContainer";
 import { DashboardAPIPath } from "@/enums/apiPaths.enum";
+import { Course } from "@/enums/courses.enum";
+import EnrolledCoursesDialog from "./EnrolledCoursesDialog";
 
 export default function CreateUserForm() {
   const router = useRouter();
@@ -64,7 +65,7 @@ export default function CreateUserForm() {
       const reqBody = {
         ...formData,
         progress: initializeProgress(
-          formData.enrolled_courses.map((courseObj) => courseObj.course) as Courses[]
+          formData.enrolled_courses.map((courseObj) => courseObj.course) as Course[]
         ),
       };
 
