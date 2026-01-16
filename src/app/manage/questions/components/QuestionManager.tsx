@@ -10,7 +10,7 @@ import QuestionEditor from "./QuestionEditor";
 
 export default function QuestionManager() {
   const {
-    selectedModule,
+    selectedModuleId,
     selectedTopic,
     selectedCourse,
     selectTopic,
@@ -83,10 +83,10 @@ export default function QuestionManager() {
                           const { module_id, questions } = module;
                           return (
                             <button
-                              key={module_id}
+                              key={`${module_id}—${selectedModuleId}`}
                               onClick={() => selectModule(module_id)}
                               className={`w-full text-left px-4 py-3 rounded-lg mb-1 transition flex items-center justify-between ${
-                                selectedModule === module_id
+                                selectedModuleId === module_id
                                   ? "bg-blue-100 text-blue-700 font-medium"
                                   : "text-gray-700 hover:bg-gray-100"
                               }`}
@@ -94,7 +94,7 @@ export default function QuestionManager() {
                               <span>{module_id}</span>
                               <span
                                 className={`text-xs px-2 py-1 rounded-full ${
-                                  selectedModule === module_id
+                                  selectedModuleId === module_id
                                     ? "bg-blue-200 text-blue-800"
                                     : "bg-gray-200 text-gray-600"
                                 }`}
@@ -115,11 +115,11 @@ export default function QuestionManager() {
 
         {/* Right Content Area - Questions */}
         <div className="flex-2 space-y-4 overflow-y-auto py-5 px-5">
-          {selectedModule &&
+          {selectedModuleId &&
             currentModule &&
-            currentModule.questions.map((question) => (
+            currentModule.questions.map((question, index) => (
               <div
-                key={question.question_number}
+                key={`${index}—${question.question_number}`}
                 className="bg-white rounded-lg p-5 shadow-sm border-2 border-transparent hover:border-blue-300 transition"
               >
                 {editingQuestion && editingQuestion.question_number === question.question_number ? (
@@ -136,9 +136,7 @@ export default function QuestionManager() {
                         </span>
                       </div>
                       <button
-                        onClick={() => {
-                          setEditingQuestion(question);
-                        }}
+                        onClick={() => setEditingQuestion(question)}
                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
                       >
                         <Edit2 size={20} />

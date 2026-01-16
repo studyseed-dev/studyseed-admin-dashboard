@@ -7,6 +7,7 @@ import { TrueFalseForm } from "./TrueFalseForm";
 import { MSQForm } from "./MSQForm";
 import { DndForm } from "./DnDForm";
 import { MatchingForm } from "./MatchingForm";
+import { TndForm } from "./TndForm";
 
 interface QuestionEditorProps {
   question: Question;
@@ -21,7 +22,6 @@ export default function QuestionEditor({ question }: QuestionEditorProps) {
         return <MCQForm question={question} />;
 
       case "multiple_selection":
-        // TODO: Implement MSQForm component
         return <MSQForm question={question} />;
 
       case "true_false":
@@ -37,16 +37,9 @@ export default function QuestionEditor({ question }: QuestionEditorProps) {
         return <DndForm question={question} />;
 
       case "tnd":
-        // TODO: Implement TapAndDropForm component
-        return (
-          <div className="space-y-4">
-            <p className="text-red-600">Tap and Drop form not yet implemented</p>
-            <Button variant="secondary">Close</Button>
-          </div>
-        );
+        return <TndForm question={question} />;
 
       case "dummy":
-        // Dummy questions might not need editing
         return (
           <div className="space-y-4">
             <p className="text-gray-600">Dummy questions cannot be edited</p>

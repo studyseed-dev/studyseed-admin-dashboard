@@ -21,19 +21,25 @@ export enum TapAndDropStyle {
   CATEGORIES = "CATEGORIES",
   INDIVIDUAL = "INDIVIDUAL",
 }
-export interface TapAndDropType extends BaseQuestion {
+
+export interface BaseTapAndDropType extends BaseQuestion {
   question_style: "tnd";
   options: string[];
-  correct_answer:
-    | {
-        [key: string]: string[];
-      }
-    | string[];
-
   tndStyle: TapAndDropStyle;
-  numOfDropBox?: number;
-  categories?: string[];
 }
+
+export interface TndIndividualQuestion extends BaseTapAndDropType {
+  tndStyle: TapAndDropStyle.INDIVIDUAL;
+  correct_answer: string[];
+}
+
+export interface TndCategoriesQuestion extends BaseTapAndDropType {
+  tndStyle: TapAndDropStyle.CATEGORIES;
+  categories: string[];
+  correct_answer: Record<string, string[]>;
+}
+
+export type TapAndDropType = TndIndividualQuestion | TndCategoriesQuestion;
 
 // Multiple Selection interface (MCQ but can select more than one)
 export interface MSQtype extends BaseQuestion {

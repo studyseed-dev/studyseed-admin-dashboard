@@ -11,8 +11,6 @@ export async function DELETE(request: Request) {
     const existingToken = cookies.authToken;
 
     if (!existingToken) {
-      console.log("cookie", cookies, existingToken);
-
       return NextResponse.json(
         { message: "Your session has timed out. Please log in again!" },
         { status: 401 }

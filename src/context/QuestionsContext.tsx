@@ -15,7 +15,7 @@ import { ZodQuestionSchema } from "@/lib/questionSchema";
 export interface QuestionsContextType {
   selectedTopic: Topic;
   selectedCourse: Course | undefined;
-  selectedModule: string | undefined;
+  selectedModuleId: string | undefined;
   modules?: Record<string, Question[]>;
   isLoading: boolean;
   questions: GLPQuestionsPayload | undefined;
@@ -52,7 +52,7 @@ export const QuestionsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const [selectedTopic, setSelectedTopic] = useState<Topic>(Topic.LITERACY);
   const [selectedCourse, setSelectedCourse] = useState<Course | undefined>(undefined);
-  const [selectedModule, setSelectedModule] = useState<string | undefined>(undefined);
+  const [selectedModuleId, setSelectedModuleId] = useState<string | undefined>(undefined);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
 
   const { data: questions, isLoading } = useQuery<GLPQuestionsPayload | undefined>({
@@ -76,7 +76,7 @@ export const QuestionsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const updatePayload: UpdateQuestionPayload = {
       course: selectedCourse,
       topic: selectedTopic,
-      module_id: selectedModule,
+      module_id: selectedModuleId,
       question_number: updates.question_number,
       updates: updates,
     };
@@ -92,25 +92,25 @@ export const QuestionsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, []);
 
   const selectModule = useCallback((module: string | undefined) => {
-    if (module) setSelectedModule(module);
+    if (module) setSelectedModuleId(module);
   }, []);
 
   const currentModule = useMemo(() => {
     if (!questions) return undefined;
 
-    if (selectedModule) {
-      return questions.modules.find((module) => module.module_id === selectedModule);
+    if (selectedModuleId) {
+      return questions.modules.find((module) => module.module_id === selectedModuleId);
     }
 
     return undefined;
-  }, [questions, selectedModule]);
+  }, [questions, selectedModuleId]);
 
   return (
     <QuestionsContext.Provider
       value={{
         selectedTopic,
         selectedCourse,
-        selectedModule,
+        selectedModuleId,
         questions,
         isLoading,
         selectTopic,

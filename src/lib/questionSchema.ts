@@ -76,27 +76,26 @@ export const FillBlankSchema = BaseQuestionSchema.extend({
 });
 
 // Tap and Drop Schema
-export const TapAndDropSchema = BaseQuestionSchema.extend({
+const baseTndSchema = BaseQuestionSchema.extend({
   question_style: z.literal("tnd"),
-  options: z
-    .array(z.string().min(1, { message: "Option cannot be empty" }))
-    .min(1, { message: "At least one option required" }),
-  correct_answer: z.union([z.record(z.string(), z.array(z.string())), z.array(z.string().min(1))]),
-  tndStyle: z.enum(["CATEGORIES", "INDIVIDUAL"]),
-  numOfDropBox: z.number().int().positive().optional(),
-  categories: z.array(z.string()).optional(),
-}).refine(
-  (data) => {
-    if (data.tndStyle === "CATEGORIES") {
-      return data.categories && data.categories.length > 0;
-    }
-    return true;
-  },
-  {
-    message: "Categories are required when style is CATEGORIES",
-    path: ["categories"],
-  }
-);
+  options: z.array(z.string()).min(2),
+});
+
+export const TndIndividualSchema = baseTndSchema.extend({
+  tndStyle: z.literal("INDIVIDUAL"),
+  correct_answer: z.array(z.string()).min(1),
+});
+
+export const TndCategoriesSchema = baseTndSchema.extend({
+  tndStyle: z.literal("CATEGORIES"),
+  categories: z.array(z.string()).length(2),
+  correct_answer: z.record(
+    z.string(),
+    z.array(z.string().min(1, { message: "Field cannot be empty" })).min(1, {
+      message: "Each category must contain at least one option",
+    })
+  ),
+});
 
 // Dummy Schema
 export const DummySchema = BaseQuestionSchema.extend({
@@ -112,7 +111,8 @@ export const QuestionSchema = z.union([
   DragAndDropSchema,
   MatchingSchema,
   FillBlankSchema,
-  TapAndDropSchema,
+  TndIndividualSchema,
+  TndCategoriesSchema,
   DummySchema,
 ]);
 
@@ -123,6 +123,7 @@ export type ZodTrueFalseSchema = z.infer<typeof TrueFalseSchema>;
 export type ZodDragAndDropSchema = z.infer<typeof DragAndDropSchema>;
 export type ZodMatchingSchema = z.infer<typeof MatchingSchema>;
 export type ZodFillBlankSchema = z.infer<typeof FillBlankSchema>;
-export type ZodTapAndDropSchema = z.infer<typeof TapAndDropSchema>;
+export type ZodTndIndividualSchema = z.infer<typeof TndIndividualSchema>;
+export type ZodTndCategoriesSchema = z.infer<typeof TndCategoriesSchema>;
 export type ZodDummySchema = z.infer<typeof DummySchema>;
 export type ZodQuestionSchema = z.infer<typeof QuestionSchema>;
