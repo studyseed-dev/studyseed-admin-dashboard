@@ -7,7 +7,7 @@ import { DashboardAPIPath } from "@/enums/apiPaths.enum";
 import { Course } from "@/enums/courses.enum";
 import { Topic } from "@/enums/topics.enum";
 import { Question } from "@/lib/questionTypes";
-import { GLPQuestionsPayload, Module } from "@/Models/GLPQuestion";
+import { QuestionsPayload, Module } from "@/Models/QuestionModel";
 import { updateQuestionFn } from "@/lib/networkFunctions";
 import { UpdateQuestionPayload } from "@/lib/types";
 import { ZodQuestionSchema } from "@/lib/questionSchema";
@@ -18,7 +18,7 @@ export interface QuestionsContextType {
   selectedModuleId: string | undefined;
   modules?: Record<string, Question[]>;
   isLoading: boolean;
-  questions: GLPQuestionsPayload | undefined;
+  questions: QuestionsPayload | undefined;
   selectTopic: (topic: Topic | undefined) => void;
   selectCourse: (course: Course | undefined) => void;
   selectModule: (module: string | undefined) => void;
@@ -34,7 +34,7 @@ export const QuestionsContext = createContext<QuestionsContextType | undefined>(
 const getTopicData = async (
   topic: Topic | undefined,
   courseEnrolled: Course | undefined
-): Promise<GLPQuestionsPayload | undefined> => {
+): Promise<QuestionsPayload | undefined> => {
   if (!topic || !courseEnrolled) return undefined;
 
   const response = await fetch(
@@ -55,7 +55,7 @@ export const QuestionsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [selectedModuleId, setSelectedModuleId] = useState<string | undefined>(undefined);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
 
-  const { data: questions, isLoading } = useQuery<GLPQuestionsPayload | undefined>({
+  const { data: questions, isLoading } = useQuery<QuestionsPayload | undefined>({
     queryKey: ["topic-data", selectedTopic, selectedCourse],
     queryFn: () => getTopicData(selectedTopic, selectedCourse),
     placeholderData: keepPreviousData,

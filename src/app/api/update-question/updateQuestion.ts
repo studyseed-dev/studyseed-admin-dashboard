@@ -2,21 +2,27 @@ import { Course } from "@/enums/courses.enum";
 import { Topic } from "@/enums/topics.enum";
 
 import { UpdateQuestionPayload } from "@/lib/types";
-import { GES2NumeracyQuestions, GES2LiteracyQuestions } from "@/Models/GES2Question";
-import { GLPLiteracyQuestions, GLPNumeracyQuestions } from "@/Models/GLPQuestion";
-import { LiteracyQuestions, NumeracyQuestions } from "@/Models/Question";
+
+import {
+  GES2LiteracyQuestions,
+  GES2NumeracyQuestions,
+  GESLiteracyQuestions,
+  GESNumeracyQuestions,
+  GLPLiteracyQuestions,
+  GLPNumeracyQuestions,
+} from "@/Models/QuestionModel";
 
 const getCollection = (course: Course, topic: Topic) => {
   if (course === Course.GES) {
-    return topic === "NUMERACY" ? NumeracyQuestions : LiteracyQuestions;
+    return topic === Topic.NUMERACY ? GESNumeracyQuestions : GESLiteracyQuestions;
   }
 
   if (course === Course.GES2) {
-    return topic === "NUMERACY" ? GES2NumeracyQuestions : GES2LiteracyQuestions;
+    return topic === Topic.NUMERACY ? GES2NumeracyQuestions : GES2LiteracyQuestions;
   }
 
   if (course === Course.GLP) {
-    return topic === "NUMERACY" ? GLPNumeracyQuestions : GLPLiteracyQuestions;
+    return topic === Topic.NUMERACY ? GLPNumeracyQuestions : GLPLiteracyQuestions;
   }
 
   throw new Error("Invalid course/topic");

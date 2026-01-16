@@ -21,6 +21,7 @@ import {
   DialogClose,
   DialogContent,
   DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 
@@ -82,6 +83,7 @@ export default function UserTable({ paginatedUsers, caption }: UserTableProps) {
 
   return (
     <Dialog>
+      <DialogTitle className="sr-only" />
       <DialogContent>
         <DialogHeader>Action</DialogHeader>
         <Typography id="server-modal-description" sx={{ pt: 2 }}>

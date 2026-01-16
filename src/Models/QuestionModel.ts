@@ -46,8 +46,20 @@ export const GLPNumeracyQuestions =
 export const GLPLiteracyQuestions =
   mongoose.models.GLPLiteracy || mongoose.model("GLPLiteracy", questionSchema, "glp_literacy");
 
+export const GES2NumeracyQuestions =
+  mongoose.models.GES2Numeracy || mongoose.model("GES2Numeracy", questionSchema, "ges2_numeracy");
+
+export const GES2LiteracyQuestions =
+  mongoose.models.GES2Literacy || mongoose.model("GES2Literacy", questionSchema, "ges2_literacy");
+
+export const GESNumeracyQuestions =
+  mongoose.models.GESNumeracy || mongoose.model("GESNumeracy", questionSchema, "ges_numeracy");
+
+export const GESLiteracyQuestions =
+  mongoose.models.GESLiteracy || mongoose.model("GESLiteracy", questionSchema, "ges_literacy");
+
 // Used for GET requests payload
-export type GLPQuestionsPayload = {
+export type QuestionsPayload = {
   modules: Module[];
 };
 
