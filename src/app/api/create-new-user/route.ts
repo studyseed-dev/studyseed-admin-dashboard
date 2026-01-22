@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     if (!existingToken) {
       return NextResponse.json(
         { message: "Your session has timed out. Please log in again!" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     if (existingUser?.userid === requestBody.userid) {
       return NextResponse.json(
         { message: "User already exist. Try a different User ID" },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -40,12 +40,14 @@ export async function POST(request: Request) {
       enrolled_courses: requestBody.enrolled_courses.map((courseObj) => courseObj.course),
     };
 
+    console.log("updated req body", updatedReqBody);
+
     const newUser = new User(updatedReqBody);
     const savedResult = await newUser.save();
 
     const response = NextResponse.json(
       { message: `User Created successfully`, savedResult },
-      { status: 201 }
+      { status: 201 },
     );
 
     return response;

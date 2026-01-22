@@ -1,10 +1,11 @@
+import { serialize } from "cookie";
+import bcryptjs from "bcryptjs";
+import { NextResponse } from "next/server";
+
 import { adminSchema, ZodAdminSchema } from "@/lib/adminSchema";
 import { Admin } from "@/Models/Admin";
-import { NextResponse } from "next/server";
-import bcryptjs from "bcryptjs";
 import { connectToMongoDB } from "@/lib/mongodb";
-import jwt from "jsonwebtoken";
-import { parse, serialize } from "cookie";
+import { signAuthToken } from "@/lib/auth";
 
 export interface LoginResponse {
   message: string;
@@ -15,34 +16,12 @@ export async function POST(request: Request) {
   await connectToMongoDB();
 
   try {
-    const cookies = parse(request.headers.get("cookie") || "");
-    const existingToken = cookies.authToken;
-
-    // If token exists, verify it. If it's expired, allow the request to continue
-    // so the user can re-authenticate instead of failing the whole request.
-    if (existingToken) {
-      try {
-        const decoded = jwt.verify(existingToken, process.env.JWT_SECRET as string);
-
-        return NextResponse.json({ message: "User already logged in", user: decoded });
-      } catch (err: unknown) {
-        // TokenExpiredError from jsonwebtoken has name === 'TokenExpiredError'
-        const e = err as { name?: string; message?: string };
-        if (e?.name === "TokenExpiredError" || (e?.message && e.message.includes("jwt expired"))) {
-          console.error("Token expired — proceeding to re-authenticate");
-          // Do not return here; allow the POST body credentials to be validated below.
-        } else {
-          // Other token verification errors should be surfaced as unauthorized
-          return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-        }
-      }
-    }
-
     const requestBody: ZodAdminSchema = await request.json();
 
     const result = adminSchema.safeParse(requestBody);
 
-    if (!result.success) return NextResponse.json({ error: result }, { status: 400 });
+    if (!result.success)
+      return NextResponse.json({ error: `Parsing error: ${result}` }, { status: 400 });
 
     const adminUser = (await Admin.findOne({ email: requestBody.email })) as ZodAdminSchema;
 
@@ -57,13 +36,13 @@ export async function POST(request: Request) {
     }
 
     // if login successful, generate an auth token for user
-    const token = jwt.sign({ _email: adminUser.email }, process.env.JWT_SECRET as string, {
-      expiresIn: "6h",
+    const token = await signAuthToken({
+      email: adminUser.email,
     });
 
     const response = NextResponse.json(
       { message: `Login successful`, adminUser } as LoginResponse,
-      { status: 201 }
+      { status: 201 },
     );
 
     response.headers.set(
@@ -73,7 +52,7 @@ export async function POST(request: Request) {
         secure: process.env.NODE_ENV === "production",
         maxAge: 60 * 60 * 12,
         path: "/",
-      })
+      }),
     );
 
     return response;

@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { parse } from "cookie";
-import jwt from "jsonwebtoken";
+
 import { User } from "@/Models/User";
 import { connectToMongoDB } from "@/lib/mongodb";
+import { verifyAuthToken } from "@/lib/auth";
 
 export async function GET(request: Request) {
   await connectToMongoDB();
@@ -31,7 +32,7 @@ export async function GET(request: Request) {
       }
     : {};
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+  const decoded = verifyAuthToken(token);
 
   const users = await User.find(searchFilter)
     .sort({ _id: -1 })

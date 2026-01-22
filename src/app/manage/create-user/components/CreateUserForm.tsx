@@ -56,16 +56,19 @@ export default function CreateUserForm() {
   const userid = watch("userid");
   const enrolledCourses = watch("enrolled_courses");
 
+  console.log("form data", getValues());
+
   const onSubmit = async () => {
     try {
       // Small artificial delay to keep parity with previous behavior
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       const formData = getValues();
+
       const reqBody = {
         ...formData,
         progress: initializeProgress(
-          formData.enrolled_courses.map((courseObj) => courseObj.course) as Course[]
+          formData.enrolled_courses.map((courseObj) => courseObj.course) as Course[],
         ),
       };
 
@@ -86,6 +89,7 @@ export default function CreateUserForm() {
   type CreateUserBody = ZodUserSchema & { progress: Record<string, unknown> };
 
   const createUserFn = async (body: CreateUserBody) => {
+    console.log("body", body);
     const res = await fetch(DashboardAPIPath.CREATE_NEW_USER, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -133,7 +137,7 @@ export default function CreateUserForm() {
   const handleAutoGenerate = () => {
     const { first_name, last_name } = getValues();
     const generatedUserId = `${first_name[0].toUpperCase()}${last_name[0].toUpperCase()}01${generateRandomLetters(
-      2
+      2,
     )}`;
     setValue("userid", generatedUserId, { shouldDirty: true, shouldValidate: true });
   };
@@ -247,7 +251,7 @@ export default function CreateUserForm() {
               >
                 <Button
                   variant="contained"
-                  disabled={!firstName || !lastName}
+                  aria-disabled={!firstName || !lastName}
                   onClick={handleAutoGenerate}
                   sx={{
                     width: "100%",

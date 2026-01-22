@@ -30,14 +30,16 @@ const UserSchema = new mongoose.Schema<IUser>(
       enum: Object.values(Course),
     },
     courses: {
-      default: Object.values(Topic),
+      type: [String],
+      enum: Object.values(Topic),
+      required: true,
     },
     progress: {
       type: Schema.Types.Mixed,
       required: true,
     },
   },
-  { minimize: false }
+  { minimize: false },
 );
 
 export const User = mongoose.models.Users || mongoose.model("Users", UserSchema, "users");

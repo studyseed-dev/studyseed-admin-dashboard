@@ -1,4 +1,5 @@
 "use client";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { adminSchema, ZodAdminSchema } from "@/lib/adminSchema";
@@ -7,15 +8,18 @@ import { useAuth } from "@/context/AuthContext";
 import { LoginResponse } from "@/app/api/login/route";
 import { useLocalStorage } from "usehooks-ts";
 import { DashboardAPIPath } from "@/enums/apiPaths.enum";
+import { useRouter } from "next/navigation";
+import { DashboardPagePath } from "@/enums/pagePaths.enum";
 
 export default function Login() {
+  const router = useRouter();
   const { setIsAuthenticated } = useAuth();
   const [adminProfile, setAdminProfile] = useLocalStorage<ZodAdminSchema | null>(
     "admin-profile",
     null,
     {
       serializer: (value) => JSON.stringify(value),
-    }
+    },
   );
 
   type LoginError = {
@@ -34,6 +38,12 @@ export default function Login() {
     formState: { errors, isValid, isSubmitting },
   } = useForm({
     resolver: zodResolver(adminSchema),
+    mode: "onChange",
+    reValidateMode: "onChange",
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
   const onSubmit = async (data: unknown) => {
@@ -59,7 +69,7 @@ export default function Login() {
       const result: LoginResponse = await response.json();
       if (!adminProfile) setAdminProfile(result?.adminUser);
       setIsAuthenticated(true);
-      window.location.href = "/manage";
+      router.push(DashboardPagePath.CREATE_NEW_USER);
     } catch (error) {
       console.error("Unexpected error:", error);
     }
@@ -100,7 +110,7 @@ export default function Login() {
 
         {errors.root?.message && <Alert role="alert">{errors?.root.message}?</Alert>}
 
-        <Button disabled={!isValid} variant="contained" type="submit" loading={isSubmitting}>
+        <Button aria-disabled={!isValid} variant="contained" type="submit" loading={isSubmitting}>
           Sign In As Admin
         </Button>
       </Stack>
