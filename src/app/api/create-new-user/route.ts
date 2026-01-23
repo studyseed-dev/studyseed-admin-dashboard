@@ -40,8 +40,6 @@ export async function POST(request: Request) {
       enrolled_courses: requestBody.enrolled_courses.map((courseObj) => courseObj.course),
     };
 
-    console.log("updated req body", updatedReqBody);
-
     const newUser = new User(updatedReqBody);
     const savedResult = await newUser.save();
 

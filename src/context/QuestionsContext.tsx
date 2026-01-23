@@ -31,15 +31,13 @@ export interface QuestionsContextType {
 
 export const QuestionsContext = createContext<QuestionsContextType | undefined>(undefined);
 
-const getTopicData = async (
+const getQuestions = async (
   topic: Topic | undefined,
-  courseEnrolled: Course | undefined
+  course: Course | undefined,
 ): Promise<QuestionsPayload | undefined> => {
-  if (!topic || !courseEnrolled) return undefined;
+  if (!topic || !course) return undefined;
 
-  const response = await fetch(
-    `${DashboardAPIPath.GET_TOPIC_DATA}?topic=${topic}&courseEnrolled=${courseEnrolled}`
-  );
+  const response = await fetch(`${DashboardAPIPath.GET_QUESTIONS}?topic=${topic}&course=${course}`);
 
   if (!response.ok) return undefined;
 
@@ -56,8 +54,8 @@ export const QuestionsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
 
   const { data: questions, isLoading } = useQuery<QuestionsPayload | undefined>({
-    queryKey: ["topic-data", selectedTopic, selectedCourse],
-    queryFn: () => getTopicData(selectedTopic, selectedCourse),
+    queryKey: ["questions-by-course-topic", selectedTopic, selectedCourse],
+    queryFn: () => getQuestions(selectedTopic, selectedCourse),
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 5,
     enabled: !!selectedCourse && !!selectedTopic,
@@ -66,8 +64,9 @@ export const QuestionsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const { isPending: isQuestionUpdating, mutateAsync } = useMutation({
     mutationFn: updateQuestionFn,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["topic-data", selectedTopic, selectedCourse] });
-
+      queryClient.invalidateQueries({
+        queryKey: ["questions-by-course-topic", selectedTopic, selectedCourse],
+      });
       setEditingQuestion(null);
     },
   });

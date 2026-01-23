@@ -56,8 +56,6 @@ export default function CreateUserForm() {
   const userid = watch("userid");
   const enrolledCourses = watch("enrolled_courses");
 
-  console.log("form data", getValues());
-
   const onSubmit = async () => {
     try {
       // Small artificial delay to keep parity with previous behavior
@@ -89,7 +87,6 @@ export default function CreateUserForm() {
   type CreateUserBody = ZodUserSchema & { progress: Record<string, unknown> };
 
   const createUserFn = async (body: CreateUserBody) => {
-    console.log("body", body);
     const res = await fetch(DashboardAPIPath.CREATE_NEW_USER, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

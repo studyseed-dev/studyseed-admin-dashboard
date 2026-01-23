@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { parse } from "cookie";
 
 import { connectToMongoDB } from "@/lib/mongodb";
-import { fetchQuestions } from "./getTopicData";
+import { getQuestionsByCourseAndTopic } from "./getQuestionsByCourseAndTopic";
 import { Topic } from "@/enums/topics.enum";
 import { Course } from "@/enums/courses.enum";
 import { verifyAuthToken } from "@/lib/auth";
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
   try {
     await verifyAuthToken(token);
 
-    const gameQuestions = await fetchQuestions(courseEnrolled, topic);
+    const gameQuestions = await getQuestionsByCourseAndTopic(courseEnrolled, topic);
 
     if (!gameQuestions) {
       return NextResponse.json({ error: `Questions not found for ${topic}` }, { status: 404 });

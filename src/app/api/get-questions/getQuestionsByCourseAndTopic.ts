@@ -11,9 +11,9 @@ import {
   GESNumeracyQuestions,
 } from "@/Models/QuestionModel";
 
-export const fetchQuestions = async (
+export const getQuestionsByCourseAndTopic = async (
   courseEnrolled: Course,
-  topic: Topic
+  topic: Topic,
 ): Promise<QuestionsPayload | { [error: string]: string }> => {
   switch (courseEnrolled) {
     case Course.GES:

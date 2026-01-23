@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { connectToMongoDB } from "@/lib/mongodb";
 import { parse } from "cookie";
+
+import { connectToMongoDB } from "@/lib/mongodb";
 import { UpdateQuestionPayload } from "@/lib/types";
-// import { updateQuestionSchema } from "@/lib/questionSchema";
 import { updateQuestion } from "./updateQuestion";
 
 export async function PUT(request: Request) {
@@ -16,11 +16,10 @@ export async function PUT(request: Request) {
     if (!existingToken) {
       return NextResponse.json(
         { message: "Your session has timed out. Please log in again!" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
-    /* -------------------- Parse + Validate -------------------- */
     const requestBody: UpdateQuestionPayload = await request.json();
 
     /* -------------------- Update -------------------- */
