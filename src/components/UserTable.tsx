@@ -103,8 +103,8 @@ export default function UserTable({ paginatedUsers, caption }: UserTableProps) {
           {!!caption
             ? caption
             : paginatedUsers?.length > 0
-            ? "A list of recently added users"
-            : "No users have been added yet"}
+              ? "A list of recently added users"
+              : "No users have been added yet"}
         </TableCaption>
 
         <TableHeader>
@@ -112,6 +112,7 @@ export default function UserTable({ paginatedUsers, caption }: UserTableProps) {
             <TableHead className="w-[100px]">User ID</TableHead>
             <TableHead>First Name</TableHead>
             <TableHead>Last Name</TableHead>
+            <TableHead>Topics</TableHead>
             <TableHead className="text-right">Course Enrolled</TableHead>
           </TableRow>
         </TableHeader>
@@ -128,7 +129,8 @@ export default function UserTable({ paginatedUsers, caption }: UserTableProps) {
               </TableCell>
               <TableCell>{user.first_name}</TableCell>
               <TableCell>{user.last_name}</TableCell>
-              <TableCell className="text-right">{user?.enrolled_courses?.join(", ")}</TableCell>
+              <TableCell>{user.courses?.join(", ")}</TableCell>
+              <TableCell className="text-right">{user.enrolled_courses?.join(", ")}</TableCell>
               <TableCell className="font-medium flex gap-2">
                 <DialogTrigger asChild>
                   <ButtonBase>
