@@ -1,15 +1,19 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { adminSchema, ZodAdminSchema } from "@/lib/adminSchema";
-import { Alert, Button, Stack, TextField } from "@mui/material";
+
 import { useAuth } from "@/context/AuthContext";
 import { LoginResponse } from "@/app/api/login/route";
 import { useLocalStorage } from "usehooks-ts";
 import { DashboardAPIPath } from "@/enums/apiPaths.enum";
 import { useRouter } from "next/navigation";
 import { DashboardPagePath } from "@/enums/pagePaths.enum";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function Login() {
   const router = useRouter();
@@ -31,12 +35,12 @@ export default function Login() {
   };
 
   const {
-    register,
     handleSubmit,
     setError,
     setFocus,
+    control,
     formState: { errors, isValid, isSubmitting },
-  } = useForm({
+  } = useForm<ZodAdminSchema>({
     resolver: zodResolver(adminSchema),
     mode: "onChange",
     reValidateMode: "onChange",
@@ -76,44 +80,37 @@ export default function Login() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <Stack gap={3}>
-        <Stack
-          gap={3}
-          sx={{
-            flexDirection: {
-              xs: "column",
-              md: "row",
-            },
-          }}
-        >
-          <TextField
-            {...register("email")}
-            label="Email"
-            variant="outlined"
-            error={!!errors.email}
-            sx={{ flex: 1 }}
-            helperText={errors.email && errors.email.message}
-          />
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 min-w-lg">
+      <h1>Administrator Login</h1>
 
-          <TextField
-            type="password"
-            {...register("password")}
-            label="Password"
-            variant="outlined"
-            error={!!errors.password}
-            sx={{ flex: 1 }}
-            helperText={errors.password && errors.password.message}
-            slotProps={{ htmlInput: { autoComplete: "off" } }}
-          />
-        </Stack>
+      <div className="flex gap-3">
+        <Controller
+          name="email"
+          control={control}
+          render={({ field }) => (
+            <Field>
+              <FieldLabel>{field.name}</FieldLabel>
+              <Input {...field} placeholder="e.g. jane.doe@gmail.com" />
+            </Field>
+          )}
+        />
 
-        {errors.root?.message && <Alert role="alert">{errors?.root.message}?</Alert>}
+        <Controller
+          name="password"
+          control={control}
+          render={({ field }) => (
+            <Field>
+              <FieldLabel>{field.name}</FieldLabel>
+              <Input {...field} type="password" />
+            </Field>
+          )}
+        />
 
-        <Button aria-disabled={!isValid} variant="contained" type="submit" loading={isSubmitting}>
-          Sign In As Admin
-        </Button>
-      </Stack>
+        {errors.root?.message && <div role="alert">{errors?.root.message}?</div>}
+      </div>
+      <Button aria-disabled={!isValid} type="submit">
+        {isSubmitting ? <Spinner /> : "Sign In As Admin"}
+      </Button>
     </form>
   );
 }

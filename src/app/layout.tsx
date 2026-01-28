@@ -5,7 +5,7 @@ import { Inter } from "next/font/google";
 import NavBar from "@/components/NavBar";
 import { AuthProvider } from "@/context/AuthContext";
 import { QuestionsProvider } from "@/context/QuestionsContext";
-import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
+
 import "./globals.css";
 import QueryProvider from "./provider/QueryProvider";
 
@@ -25,12 +25,10 @@ export default function RootLayout({
         <QuestionsProvider>
           <html lang="en">
             <body className={`${inter.className}`}>
-              <AppRouterCacheProvider>
-                <NavBar />
-                {children}
-                <Analytics />
-                <Toaster />
-              </AppRouterCacheProvider>
+              <NavBar />
+              {children}
+              <Analytics />
+              <Toaster />
             </body>
           </html>
         </QuestionsProvider>

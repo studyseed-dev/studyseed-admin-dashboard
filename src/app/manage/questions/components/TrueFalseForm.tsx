@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { Input } from "@mui/material";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Textarea } from "@/components/ui/textarea";
@@ -10,6 +10,7 @@ import { TrueFalseType } from "@/lib/questionTypes";
 import { useQuestions } from "@/context/QuestionsContext";
 
 import { FormActionButtons } from "./FormActionButtons";
+import { Input } from "@/components/ui/input";
 
 interface TrueFalseFormProps {
   question: TrueFalseType;

@@ -1,15 +1,11 @@
 "use client";
-import { Box, Typography } from "@mui/material";
-import { ZodUserSchema, userSchema } from "@/lib/adminSchema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, FormProvider } from "react-hook-form";
-import CreateUserForm from "./components/CreateUserForm";
-import { useLocalStorage } from "usehooks-ts";
-import BasicContainer from "@/components/BasicContainer";
 
+import { ZodUserSchema } from "@/lib/adminSchema";
 import dynamic from "next/dynamic";
+import { useLocalStorage } from "usehooks-ts";
+
+import CreateUserForm from "./components/CreateUserForm";
 import Loading from "../components/loading";
-import { Topic } from "@/enums/topics.enum";
 
 const UserTable = dynamic(() => import("@/components/UserTable"), {
   loading: () => <Loading />,
@@ -17,35 +13,16 @@ const UserTable = dynamic(() => import("@/components/UserTable"), {
 });
 
 export default function CreateUser() {
-  const [userArray] = useLocalStorage<ZodUserSchema[]>("new-users", []);
-
-  const methods = useForm<ZodUserSchema>({
-    resolver: zodResolver(userSchema),
-    defaultValues: {
-      enrolled_courses: [],
-      courses: [Topic.LITERACY, Topic.NUMERACY],
-    },
-    mode: "onChange",
-  });
+  const [users] = useLocalStorage<ZodUserSchema[]>("new-users", []);
 
   return (
-    <FormProvider {...methods}>
-      <Box
-        sx={{
-          display: "flex",
-          px: 3,
-          py: 2,
-          gap: 2,
-          flex: 1,
-        }}
-      >
-        <CreateUserForm />
+    <div className="flex gap-4 m-3 flex-1">
+      <CreateUserForm />
 
-        <BasicContainer sx={{ p: 3, gap: 3 }}>
-          <Typography variant="h5">Newly Added Users</Typography>
-          <UserTable paginatedUsers={userArray} />
-        </BasicContainer>
-      </Box>
-    </FormProvider>
+      <div className="flex-3 p-3 border-solid border-1 rounded-2xl mb-3">
+        <h2>Newly Added Users</h2>
+        <UserTable paginatedUsers={users} />
+      </div>
+    </div>
   );
 }
