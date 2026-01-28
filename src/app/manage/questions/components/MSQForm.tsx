@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MSQSchema, ZodMSQSchema } from "@/lib/questionSchema";
 import { MSQtype } from "@/lib/questionTypes";
-import { useQuestions } from "@/hooks/useQuestions";
+import { useQuestions } from "@/context/QuestionsContext";
 
 import { FormActionButtons } from "./FormActionButtons";
 
@@ -48,7 +48,7 @@ export const MSQForm = ({ question }: MSQFormProps) => {
       form.setValue(
         "correct_answer",
         current.filter((a) => a !== answer),
-        { shouldValidate: true }
+        { shouldValidate: true },
       );
     }
   };
@@ -126,7 +126,7 @@ export const MSQForm = ({ question }: MSQFormProps) => {
                         // If this was a correct answer, update it in correct_answer array
                         if (currentCorrectAnswers.includes(prev)) {
                           const updatedCorrect = currentCorrectAnswers.map((ans) =>
-                            ans === prev ? newValue : ans
+                            ans === prev ? newValue : ans,
                           );
                           form.setValue("correct_answer", updatedCorrect, {
                             shouldValidate: true,

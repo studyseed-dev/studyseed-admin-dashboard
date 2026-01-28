@@ -7,7 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "@/components/ui/textarea";
 import { ZodTrueFalseSchema, TrueFalseSchema } from "@/lib/questionSchema";
 import { TrueFalseType } from "@/lib/questionTypes";
-import { useQuestions } from "@/hooks/useQuestions";
+import { useQuestions } from "@/context/QuestionsContext";
+
 import { FormActionButtons } from "./FormActionButtons";
 
 interface TrueFalseFormProps {

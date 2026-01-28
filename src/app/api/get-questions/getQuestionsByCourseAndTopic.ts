@@ -12,10 +12,10 @@ import {
 } from "@/Models/QuestionModel";
 
 export const getQuestionsByCourseAndTopic = async (
-  courseEnrolled: Course,
+  course: Course,
   topic: Topic,
 ): Promise<QuestionsPayload | { [error: string]: string }> => {
-  switch (courseEnrolled) {
+  switch (course) {
     case Course.GES:
       switch (topic.toUpperCase()) {
         case "NUMERACY":
@@ -47,6 +47,6 @@ export const getQuestionsByCourseAndTopic = async (
       }
 
     default:
-      return { error: `Invalid course enrolled: ${courseEnrolled}` };
+      return { error: `Invalid course: ${course}` };
   }
 };

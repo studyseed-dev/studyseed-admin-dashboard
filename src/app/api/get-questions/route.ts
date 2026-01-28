@@ -13,14 +13,11 @@ export async function GET(request: NextRequest) {
   // Get query parameters from URL
   const searchParams = request.nextUrl.searchParams;
   const topic = searchParams.get("topic") as Topic;
-  const courseEnrolled = searchParams.get("courseEnrolled") as Course;
+  const course = searchParams.get("course") as Course;
 
   // Validate query parameters
-  if (!topic || !courseEnrolled) {
-    return NextResponse.json(
-      { error: "Missing topic or courseEnrolled parameter" },
-      { status: 400 },
-    );
+  if (!topic || !course) {
+    return NextResponse.json({ error: "Missing topic or course parameter" }, { status: 400 });
   }
 
   // Get auth token from cookies
@@ -34,7 +31,7 @@ export async function GET(request: NextRequest) {
   try {
     await verifyAuthToken(token);
 
-    const gameQuestions = await getQuestionsByCourseAndTopic(courseEnrolled, topic);
+    const gameQuestions = await getQuestionsByCourseAndTopic(course, topic);
 
     if (!gameQuestions) {
       return NextResponse.json({ error: `Questions not found for ${topic}` }, { status: 404 });

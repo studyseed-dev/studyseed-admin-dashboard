@@ -1,14 +1,16 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import { Plus, Trash2 } from "lucide-react";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FillBlankSchema, ZodFillBlankSchema } from "@/lib/questionSchema";
 import { FillBlankType } from "@/lib/questionTypes";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Trash2 } from "lucide-react";
+import { useQuestions } from "@/context/QuestionsContext";
 import { FormActionButtons } from "./FormActionButtons";
-import { useQuestions } from "@/hooks/useQuestions";
+
 interface FillBlankFormProps {
   question: FillBlankType;
 }
@@ -45,7 +47,7 @@ export function FillBlankForm({ question }: FillBlankFormProps) {
   const removeAnswer = (index: number) => {
     setValue(
       "correct_answer",
-      answers.filter((_, i) => i !== index)
+      answers.filter((_, i) => i !== index),
     );
   };
   const capitalisation = watch("capitalisation");

@@ -8,7 +8,8 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field
 import { Input } from "@/components/ui/input";
 import { DragAndDropSchema, ZodDragAndDropSchema } from "@/lib/questionSchema";
 import { DndType } from "@/lib/questionTypes";
-import { useQuestions } from "@/hooks/useQuestions";
+import { useQuestions } from "@/context/QuestionsContext";
+
 import { FormActionButtons } from "./FormActionButtons";
 
 interface DndFormProps {

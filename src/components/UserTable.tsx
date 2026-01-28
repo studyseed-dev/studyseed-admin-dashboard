@@ -113,7 +113,7 @@ export default function UserTable({ paginatedUsers, caption }: UserTableProps) {
             <TableHead>First Name</TableHead>
             <TableHead>Last Name</TableHead>
             <TableHead>Topics</TableHead>
-            <TableHead className="text-right">Course Enrolled</TableHead>
+            <TableHead className="text-right">Courses</TableHead>
           </TableRow>
         </TableHeader>
 

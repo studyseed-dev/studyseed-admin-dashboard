@@ -3,7 +3,7 @@ import { Edit2, ChevronRight } from "lucide-react";
 
 import { Topic } from "@/enums/topics.enum";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
-import { useQuestions } from "@/hooks/useQuestions";
+import { useQuestions } from "@/context/QuestionsContext";
 import { Course } from "@/enums/courses.enum";
 import QuestionRenderer from "./QuestionRenderer";
 import QuestionEditor from "./QuestionEditor";

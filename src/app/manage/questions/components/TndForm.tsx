@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useQuestions } from "@/hooks/useQuestions";
+import { useQuestions } from "@/context/QuestionsContext";
 import {
   TndCategoriesSchema,
   TndIndividualSchema,
@@ -69,7 +69,7 @@ const TndIndividualForm = ({ question }: { question: TndIndividualQuestion }) =>
     setValue(
       "correct_answer",
       correct.filter((_, i) => i !== index),
-      { shouldDirty: true, shouldValidate: true }
+      { shouldDirty: true, shouldValidate: true },
     );
   };
 

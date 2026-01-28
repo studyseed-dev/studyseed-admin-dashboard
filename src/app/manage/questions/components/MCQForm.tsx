@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { MCQSchema, ZodMCQSchema } from "@/lib/questionSchema";
 import { MCQtype } from "@/lib/questionTypes";
-import { useQuestions } from "@/hooks/useQuestions";
+import { useQuestions } from "@/context/QuestionsContext";
 
 import { FormActionButtons } from "./FormActionButtons";
 

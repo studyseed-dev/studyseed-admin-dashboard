@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useState, useCallback, useMemo } from "react";
+import { createContext, useState, useCallback, useMemo, useContext } from "react";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { DashboardAPIPath } from "@/enums/apiPaths.enum";
@@ -125,4 +125,14 @@ export const QuestionsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       {children}
     </QuestionsContext.Provider>
   );
+};
+
+export const useQuestions = () => {
+  const context = useContext(QuestionsContext);
+
+  if (!context) {
+    throw new Error("useQuestions must be used within a QuestionsProvider");
+  }
+
+  return context;
 };
