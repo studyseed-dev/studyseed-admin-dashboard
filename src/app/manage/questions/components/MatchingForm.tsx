@@ -28,6 +28,7 @@ export const MatchingForm = ({ question }: MatchingFormProps) => {
       question_style: "matching",
       hint: question.hint,
       correct_answer: question.correct_answer || { "": "" },
+      question_label: question.question_label,
     },
   });
 
@@ -118,6 +119,12 @@ export const MatchingForm = ({ question }: MatchingFormProps) => {
           {form.formState.errors.correct_answer && (
             <FieldError errors={[form.formState.errors.correct_answer]} />
           )}
+        </Field>
+
+        {/* Label */}
+        <Field>
+          <FieldLabel>Question Label (Optional)</FieldLabel>
+          <Input {...form.register("question_label")} className="text-sm" />
         </Field>
 
         {/* Hint */}

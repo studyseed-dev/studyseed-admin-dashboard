@@ -305,6 +305,14 @@ const TndCategoryForm = ({ question }: { question: TndCategoriesQuestion }) => {
             ))}
           </ol>
         </Field>
+
+        {/* Question Label */}
+        <Field>
+          <FieldLabel>Question Label (Optional)</FieldLabel>
+          <Input {...register("question_label")} />
+        </Field>
+
+        {/* Question Hint */}
         <Field>
           <FieldLabel>Hint</FieldLabel>
           <Input {...register("hint")} className="text-sm" />

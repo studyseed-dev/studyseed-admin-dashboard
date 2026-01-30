@@ -11,6 +11,7 @@ import { useQuestions } from "@/context/QuestionsContext";
 
 import { FormActionButtons } from "./FormActionButtons";
 import { Input } from "@/components/ui/input";
+import { Field, FieldLabel } from "@/components/ui/field";
 
 interface TrueFalseFormProps {
   question: TrueFalseType;
@@ -42,8 +43,8 @@ export function TrueFalseForm({ question }: TrueFalseFormProps) {
   return (
     <form onSubmit={handleSubmit(handleUpdateQuestion)} className="space-y-6 w-full">
       {/* Question Number */}
-      <div>
-        <label className="block text-sm font-semibold mb-2 text-gray-700">Question Number</label>
+      <Field>
+        <FieldLabel>Question Number</FieldLabel>
         <Input
           {...register("question_number")}
           placeholder="e.g., Q1"
@@ -52,11 +53,11 @@ export function TrueFalseForm({ question }: TrueFalseFormProps) {
         {errors.question_number && (
           <p className="text-red-500 text-sm mt-1">{errors.question_number.message}</p>
         )}
-      </div>
+      </Field>
 
       {/* Question Text */}
-      <div>
-        <label className="block text-sm font-semibold mb-2 text-gray-700">Question Text *</label>
+      <Field>
+        <FieldLabel>Question Text *</FieldLabel>
         <Textarea
           {...register("question_text")}
           placeholder="Enter your true/false statement..."
@@ -66,39 +67,49 @@ export function TrueFalseForm({ question }: TrueFalseFormProps) {
         {errors.question_text && (
           <p className="text-red-500 text-sm mt-1">{errors.question_text.message}</p>
         )}
-      </div>
+      </Field>
 
       {/* Correct Answer */}
-      <div>
-        <label className="block text-sm font-semibold mb-3 text-gray-700">Correct Answer *</label>
-        <div className="flex gap-6">
-          <label className="flex items-center cursor-pointer">
-            <input
-              type="radio"
-              checked={correctAnswer === true}
-              onChange={() => setValue("correct_answer", true)}
-              className="mr-3 w-4 h-4"
-            />
-            <span className="text-lg">True</span>
-          </label>
-          <label className="flex items-center cursor-pointer">
-            <input
-              type="radio"
-              checked={correctAnswer === false}
-              onChange={() => setValue("correct_answer", false)}
-              className="mr-3 w-4 h-4"
-            />
-            <span className="text-lg">False</span>
-          </label>
+      <Field>
+        <FieldLabel className="block text-sm font-semibold mb-3 text-gray-700">
+          Correct Answer *
+        </FieldLabel>
+        <div className="flex items-center gap-6">
+          <FieldLabel>True</FieldLabel>
+          <Input
+            type="radio"
+            checked={correctAnswer === true}
+            onChange={() => setValue("correct_answer", true)}
+            className="mr-3 w-4 h-4"
+          />
+
+          <FieldLabel>False</FieldLabel>
+          <Input
+            type="radio"
+            checked={correctAnswer === false}
+            onChange={() => setValue("correct_answer", false)}
+            className="mr-3 w-4 h-4"
+          />
         </div>
         {errors.correct_answer && (
           <p className="text-red-500 text-sm mt-2">{errors.correct_answer.message}</p>
         )}
-      </div>
+      </Field>
+
+      <Field>
+        <FieldLabel>Question Label (Optional) *</FieldLabel>
+        <Textarea
+          {...register("question_label")}
+          placeholder="Provide a helpful label..."
+          rows={2}
+          className={errors.hint ? "border-red-500" : ""}
+        />
+        {errors.hint && <p className="text-red-500 text-sm mt-1">{errors.hint.message}</p>}
+      </Field>
 
       {/* Hint */}
-      <div>
-        <label className="block text-sm font-semibold mb-2 text-gray-700">Hint *</label>
+      <Field>
+        <FieldLabel>Hint *</FieldLabel>
         <Textarea
           {...register("hint")}
           placeholder="Provide a helpful hint..."
@@ -106,15 +117,13 @@ export function TrueFalseForm({ question }: TrueFalseFormProps) {
           className={errors.hint ? "border-red-500" : ""}
         />
         {errors.hint && <p className="text-red-500 text-sm mt-1">{errors.hint.message}</p>}
-      </div>
+      </Field>
 
       {/* Image URL (Optional) */}
-      <div>
-        <label className="block text-sm font-semibold mb-2 text-gray-700">
-          Image URL (Optional)
-        </label>
+      <Field>
+        <FieldLabel>Image URL (Optional)</FieldLabel>
         <Input {...register("image")} placeholder="https://example.com/image.jpg" type="url" />
-      </div>
+      </Field>
 
       <FormActionButtons
         isUpdating={isQuestionUpdating}
