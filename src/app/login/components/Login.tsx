@@ -74,6 +74,7 @@ export default function Login() {
       const result: LoginResponse = await response.json();
       if (!adminProfile) setAdminProfile(result?.adminUser);
       setIsAuthenticated(true);
+      router.refresh();
       router.push(DashboardPagePath.CREATE_NEW_USER);
     } catch (error) {
       console.error("Unexpected error:", error);
