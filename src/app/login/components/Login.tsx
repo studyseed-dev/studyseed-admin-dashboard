@@ -11,7 +11,7 @@ import { DashboardAPIPath } from "@/enums/apiPaths.enum";
 import { DashboardPagePath } from "@/enums/pagePaths.enum";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Field, FieldLabel } from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
 
 export default function Login() {
@@ -40,7 +40,7 @@ export default function Login() {
     formState: { errors, isValid, isSubmitting },
   } = useForm<ZodAdminSchema>({
     resolver: zodResolver(adminSchema),
-    mode: "onChange",
+    mode: "onSubmit",
     reValidateMode: "onChange",
     defaultValues: {
       email: "",
@@ -98,16 +98,20 @@ export default function Login() {
         <Controller
           name="password"
           control={control}
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <Field>
               <FieldLabel>{field.name}</FieldLabel>
               <Input {...field} type="password" />
+              <FieldError errors={[fieldState.error]} />
             </Field>
           )}
         />
-
-        {errors.root?.message && <div role="alert">{errors?.root.message}?</div>}
       </div>
+      {errors.root?.message && (
+        <span className="text-destructive text-sm" role="alert">
+          {errors?.root.message}
+        </span>
+      )}
       <Button aria-disabled={!isValid} type="submit">
         {isSubmitting ? <Spinner /> : "Sign In As Admin"}
       </Button>
