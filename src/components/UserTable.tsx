@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { Copy, Trash2 } from "lucide-react";
@@ -35,6 +37,7 @@ const deleteUserFn = async (body: DeleteUserBody) => {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
+    credentials: "include",
   });
   const data = await res.json();
   if (!res.ok) {
