@@ -19,7 +19,11 @@ export const userSchema = z.object({
     })
     .array()
     .min(1, { message: "Must include at least one course" }),
-  courses: z.string().array().default(["LITERACY", "NUMERACY"]),
+  courses: z
+    .string()
+    .array()
+    .min(1, { message: "Must select at least one topic" })
+    .default(["LITERACY", "NUMERACY"]),
 });
 
 export type ZodUserSchema = z.infer<typeof userSchema>;

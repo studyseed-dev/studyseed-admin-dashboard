@@ -48,10 +48,27 @@ export default function CreateUserForm() {
       last_name: "",
       enrolled_courses: [],
       userid: "",
-      courses: Object.values(Topic),
+      courses: Object.values(Topic), // This is the topics field
     },
     mode: "onChange",
   });
+
+  // Topic checkbox logic
+  const topicValues = Object.values(Topic);
+  const handleTopicCheckBoxChange = (topic: Topic, checked: boolean) => {
+    const currentTopics = getValues("courses") as Topic[];
+    if (checked) {
+      if (!currentTopics.includes(topic)) {
+        setValue("courses", [...currentTopics, topic], { shouldDirty: true, shouldValidate: true });
+      }
+    } else {
+      setValue(
+        "courses",
+        currentTopics.filter((t) => t !== topic),
+        { shouldDirty: true, shouldValidate: true },
+      );
+    }
+  };
 
   const { remove, fields, append } = useFieldArray({ control, name: "enrolled_courses" });
 
@@ -223,7 +240,37 @@ export default function CreateUserForm() {
           )}
         />
 
-        {/* <hr className="m-3" /> */}
+        <hr />
+        {/* Topic Checkbox Section */}
+        <Controller
+          name="courses"
+          control={control}
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel>Topics</FieldLabel>
+              <div className="flex flex-col gap-2">
+                {topicValues.map((topic) => {
+                  const checked = (getValues("courses") as Topic[]).includes(topic);
+                  return (
+                    <div key={topic} className="flex items-center gap-2">
+                      <Checkbox
+                        {...field}
+                        checked={checked}
+                        onCheckedChange={(checked) =>
+                          handleTopicCheckBoxChange(topic, checked as boolean)
+                        }
+                      />
+                      <span className="text-sm">{topic}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+
+        <hr />
 
         <div className="flex flex-col gap-2">
           <Dialog>

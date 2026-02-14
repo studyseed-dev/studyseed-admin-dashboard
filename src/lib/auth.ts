@@ -1,9 +1,12 @@
 import { jwtVerify, SignJWT } from "jose";
 
-const secret = new TextEncoder().encode(process.env.JWT_SECRET as string);
+export const secret = new TextEncoder().encode(JSON.stringify(process.env.JWT_SECRET));
 
 export async function verifyAuthToken(token: string) {
-  return jwtVerify(token, secret);
+  const verifiedToken = await jwtVerify(token, secret, {
+    algorithms: ["HS256"],
+  });
+  return verifiedToken;
 }
 
 export async function signAuthToken(payload: Record<string, unknown>) {
