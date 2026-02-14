@@ -2,14 +2,11 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Box, Stack } from "@mui/material";
+import { LogOut, LogIn } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
-import Avatar from "@mui/material/Avatar";
 import { useLocalStorage } from "usehooks-ts";
 
 import { useAuth } from "@/context/AuthContext";
-import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
-import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,6 +23,7 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
 import { DashboardPagePath } from "@/enums/pagePaths.enum";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const dashboardPages = [
   {
@@ -39,6 +37,10 @@ const dashboardPages = [
   {
     pageName: "Users Overview",
     href: DashboardPagePath.USERS_OVERVIEW,
+  },
+  {
+    pageName: "Manage Questions",
+    href: DashboardPagePath.MANAGE_QUESTIONS,
   },
 ];
 
@@ -74,41 +76,23 @@ export default function NavBar() {
   const handleLogin = () => router.push(DashboardPagePath.LOGIN);
 
   return (
-    <Stack>
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 3,
-          p: 3,
-          height: "80px",
-          border: "1px solid rgba(51, 51, 51, 0.3)",
-          boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 3,
-          }}
-        >
-          <Link href="/">
-            <Image
-              alt="studyseed logo"
-              src={"https://ik.imagekit.io/jbyap95/studyseed-logo-original.png"}
-              width={200}
-              height={80}
-            />
-          </Link>
-        </Box>
+    <div>
+      <div className="flex justify-between items-center p-3 shadow-md">
+        <Link href="/">
+          <Image
+            alt="studyseed logo"
+            src={"https://ik.imagekit.io/jbyap95/studyseed-logo-original.png"}
+            width={200}
+            height={80}
+          />
+        </Link>
 
         {isAuthenticated ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar className="hover:cursor-pointer">
-                {adminProfile?.username?.[0].toUpperCase()}
+                <AvatarImage src="https://ik.imagekit.io/jbyap95/favicon3.png" />
+                <AvatarFallback>{adminProfile?.username?.[0].toUpperCase()}</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="mr-8">
@@ -121,7 +105,7 @@ export default function NavBar() {
                   className="flex items-center gap-2 hover:underline hover:underline-offset-4 cursor-pointer"
                   onClick={handleLogout}
                 >
-                  <LogoutRoundedIcon />
+                  <LogOut />
                   <p>Log Out</p>
                 </button>
               </DropdownMenuItem>
@@ -134,12 +118,12 @@ export default function NavBar() {
               className="flex items-center gap-2 hover:underline hover:underline-offset-4 cursor-pointer"
               onClick={handleLogin}
             >
-              <LoginRoundedIcon />
+              <LogIn />
               <p>LOG IN</p>
             </button>
           )
         )}
-      </Box>
+      </div>
       <NavigationMenu orientation="horizontal">
         <NavigationMenuList>
           {dashboardPages.map((page) => (
@@ -151,6 +135,6 @@ export default function NavBar() {
           ))}
         </NavigationMenuList>
       </NavigationMenu>
-    </Stack>
+    </div>
   );
 }

@@ -1,28 +1,32 @@
-import {
-  Box,
-  Stack,
-  FormControl,
-  Typography,
-  TextField,
-  Button,
-  Divider,
-  Chip,
-  Alert,
-  Snackbar,
-  SnackbarCloseReason,
-} from "@mui/material";
-import React, { SyntheticEvent, useState } from "react";
-import EnrolledCoursesDialog from "./EnrolledCoursesDialog";
-import { ZodUserSchema } from "@/lib/adminSchema";
-import { Courses } from "@/lib/types";
+"use client";
+
+import React from "react";
 import { useRouter } from "next/navigation";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { generateRandomLetters, initializeProgress } from "@/lib/helperFunctions";
-import AddIcon from "@mui/icons-material/Add";
 import { useLocalStorage } from "usehooks-ts";
-import BasicContainer from "@/components/BasicContainer";
+import { CircleX } from "lucide-react";
+
+import { userSchema, ZodUserSchema } from "@/lib/adminSchema";
+import { generateRandomLetters, initializeProgress } from "@/lib/helperFunctions";
 import { DashboardAPIPath } from "@/enums/apiPaths.enum";
+import { Course } from "@/enums/courses.enum";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Spinner } from "@/components/ui/spinner";
+import { toast } from "sonner";
+import { Topic } from "@/enums/topics.enum";
 
 export default function CreateUserForm() {
   const router = useRouter();
@@ -32,53 +36,55 @@ export default function CreateUserForm() {
     setFocus,
     setError,
     handleSubmit,
-    register,
-    watch,
     getValues,
     setValue,
     control,
-    formState: { errors, isValid, isSubmitting },
-  } = useFormContext<ZodUserSchema>();
+    trigger,
+    formState: { errors, isValid, isSubmitting, isDirty },
+  } = useForm<ZodUserSchema>({
+    resolver: zodResolver(userSchema),
+    defaultValues: {
+      first_name: "",
+      last_name: "",
+      enrolled_courses: [],
+      userid: "",
+      courses: Object.values(Topic),
+    },
+    mode: "onChange",
+  });
 
-  const { remove } = useFieldArray({ control, name: "enrolled_courses" });
+  const { remove, fields, append } = useFieldArray({ control, name: "enrolled_courses" });
 
-  // only need setter here; the stored array itself isn't used directly in this component
   const [, setUserArr] = useLocalStorage<ZodUserSchema[]>("new-users", []);
 
-  const [open, setOpen] = useState(false);
-  const [showRedirecting, setShowRedirecting] = useState(false);
-  const [snackBarOpen, setSnackBarOpen] = useState(false);
-
-  // Watch the values of firstName and lastName fields
-  const firstName = watch("first_name");
-  const lastName = watch("last_name");
-  const userid = watch("userid");
-  const enrolledCourses = watch("enrolled_courses");
+  const handleCheckBoxChange = (course: Course, checked: boolean) => {
+    if (checked) {
+      append({ course });
+    } else {
+      const index = fields.findIndex((f) => f.course === course);
+      if (index !== -1) {
+        remove(index);
+      }
+    }
+  };
 
   const onSubmit = async () => {
     try {
-      // Small artificial delay to keep parity with previous behavior
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
       const formData = getValues();
+
       const reqBody = {
         ...formData,
         progress: initializeProgress(
-          formData.enrolled_courses.map((courseObj) => courseObj.course) as Courses[]
+          formData.enrolled_courses.map((courseObj) => courseObj.course) as Course[],
         ),
       };
 
-      // Use the mutation hook to perform the POST request
-      // mutateAsync generics can be awkward in this project's TS setup; use ts-ignore to call with the prepared body
-      // (the mutation is typed above via CreateUserBody)
       await createUserMutation.mutateAsync(reqBody);
     } catch (error) {
-      // Errors are handled in mutation onError, but log unexpected ones
       console.error("Unexpected error:", error);
     }
   };
 
-  // --- React Query mutation: create a new user ---
   const queryClient = useQueryClient();
 
   type CreateUserResponse = { savedResult?: ZodUserSchema; message?: string };
@@ -109,17 +115,14 @@ export default function CreateUserForm() {
       if (data && data.savedResult) {
         setUserArr((prev) => [...(prev ?? []), data.savedResult as ZodUserSchema]);
       }
-      // Invalidate any users query so other components can refetch
       queryClient.invalidateQueries({ queryKey: ["users"] });
       reset();
-      setSnackBarOpen(true);
+      toast(`User ${data.savedResult?.userid} successfully created.`);
     },
     onError: (error: Error & { status?: number }) => {
-      // Mirror previous behavior for specific status codes
       const status = error?.status;
       setError("root", { type: "manual", message: error?.message || "Unexpected error" });
       if (status === 401) {
-        setShowRedirecting(true);
         setTimeout(() => router.push("/"), 3000);
       }
       if (status === 409) {
@@ -129,176 +132,169 @@ export default function CreateUserForm() {
     },
   });
 
-  const handleAutoGenerate = () => {
+  const handleAutoGenerate = async () => {
+    const isValid = await trigger(["first_name", "last_name"]);
+
+    if (!isValid) {
+      // Optional: custom messages if you want full control
+      if (!getValues("first_name")) {
+        setError("first_name", {
+          type: "manual",
+          message: "First name is required to generate a user ID",
+        });
+      }
+
+      if (!getValues("last_name")) {
+        setError("last_name", {
+          type: "manual",
+          message: "Last name is required to generate a user ID",
+        });
+      }
+
+      return;
+    }
+
     const { first_name, last_name } = getValues();
-    const generatedUserId = `${first_name[0].toUpperCase()}${last_name[0].toUpperCase()}01${generateRandomLetters(
-      2
-    )}`;
-    setValue("userid", generatedUserId, { shouldDirty: true, shouldValidate: true });
-  };
 
-  const handleSBClose = (event: Event | SyntheticEvent<Event>, reason: SnackbarCloseReason) => {
-    if (reason === "clickaway") return;
-    setSnackBarOpen(false);
-  };
+    const generatedUserId =
+      `${first_name[0].toUpperCase()}` +
+      `${last_name[0].toUpperCase()}01` +
+      generateRandomLetters(2);
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
+    setValue("userid", generatedUserId, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
   };
 
   return (
-    <Box
-      component="form"
+    <form
       onSubmit={handleSubmit(onSubmit)}
-      sx={{
-        display: "flex",
-        flex: 1,
-      }}
+      className="flex-2 p-3 border-solid border-1 rounded-2xl"
     >
-      <BasicContainer>
-        <FormControl
-          sx={{
-            ".MuiFormHelperText-contained": {
-              position: "absolute",
-              top: "100%",
-            },
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 3,
-              width: "100%",
-              p: 3,
-            }}
-          >
-            <Typography variant="h5">Create User</Typography>
-            <Stack
-              gap={3}
-              sx={{
-                flexDirection: {
-                  xs: "column",
-                  md: "row",
-                },
-              }}
-            >
-              <TextField
-                {...register("first_name")}
-                id="outlined-basic"
-                label="First Name"
-                variant="outlined"
-                error={!!errors.first_name}
-                sx={{ flex: 1 }}
-                helperText={errors.first_name && errors.first_name.message}
-                slotProps={{
-                  htmlInput: {
-                    autoComplete: "off",
-                  },
-                }}
-              />
-              <TextField
-                {...register("last_name")}
-                id="outlined-basic"
-                label="Last Name"
-                variant="outlined"
-                error={!!errors.last_name}
-                sx={{ flex: 1 }}
-                helperText={errors.last_name && errors.last_name.message}
-                slotProps={{
-                  htmlInput: {
-                    autoComplete: "off",
-                  },
-                }}
-              />
-            </Stack>
+      <h2 className="mb-3">Create User</h2>
 
-            <Stack direction={"row"} gap={3}>
-              <TextField
-                {...register("userid")}
-                id="outlined-basic"
-                label="User ID"
-                variant="outlined"
-                error={!!errors.userid}
-                helperText={errors.userid && errors.userid.message}
-                slotProps={{
-                  inputLabel: { shrink: !!userid },
-                  htmlInput: {
-                    autoComplete: "off",
-                  },
-                }}
-                sx={{
-                  flex: 1,
-                }}
-              />
+      <FieldGroup>
+        <Controller
+          name="first_name"
+          control={control}
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel>First Name</FieldLabel>
+              <Input {...field} placeholder="e.g. Jane" />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
 
-              <Box
-                sx={{
-                  flex: 1,
-                }}
-              >
+        <Controller
+          name="last_name"
+          control={control}
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel>Last Name</FieldLabel>
+              <Input {...field} placeholder="e.g. Doe" />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+
+        <Controller
+          name="userid"
+          control={control}
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel>User ID</FieldLabel>
+              <div className="flex items-center gap-3">
+                <Input className="flex-1" {...field} placeholder="e.g. JD01AA" />
+
                 <Button
-                  variant="contained"
-                  disabled={!firstName || !lastName}
+                  className="flex-1"
+                  type="button"
+                  variant="secondary"
+                  aria-disabled={!isDirty}
                   onClick={handleAutoGenerate}
-                  sx={{
-                    width: "100%",
-                    height: "100%",
+                >
+                  Auto-generate User ID
+                </Button>
+              </div>
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+
+        {/* <hr className="m-3" /> */}
+
+        <div className="flex flex-col gap-2">
+          <Dialog>
+            <DialogTitle className="sr-only">Select At Least 1 Course</DialogTitle>
+
+            <FieldLabel className="flex items-center justify-between w-full">
+              Enrolled Courses
+              <DialogTrigger asChild>
+                <Button variant="outline">Add course</Button>
+              </DialogTrigger>
+            </FieldLabel>
+            <DialogContent>
+              <Field>
+                <FieldLabel>
+                  <h2>Available Courses</h2>
+                </FieldLabel>
+
+                {Object.values(Course).map((course) => {
+                  const isChecked = fields.some((f) => f.course === course);
+
+                  return (
+                    <div key={course} className="flex items-center gap-2">
+                      <Checkbox
+                        checked={isChecked}
+                        onCheckedChange={(checked) =>
+                          handleCheckBoxChange(course, checked as boolean)
+                        }
+                      />
+                      <span className="text-sm">{course}</span>
+                    </div>
+                  );
+                })}
+              </Field>
+
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button type="button">Done</Button>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+
+            <div className="flex gap-2">
+              {fields.length === 0 && (
+                <p className="text-sm text-muted-foreground">No courses selected</p>
+              )}
+              {fields.map((field) => (
+                <Button
+                  key={field.course}
+                  size="lg"
+                  variant="outline"
+                  onClick={() => {
+                    const index = fields.findIndex((f) => f.course === field.course);
+                    toast.success(`Removed ${fields[index].course}`);
+                    remove(index);
                   }}
                 >
-                  Auto-generate
+                  <span>{field.course}</span>
+                  <CircleX strokeWidth={1} />
                 </Button>
-              </Box>
-            </Stack>
-
-            <Divider />
-
-            <Stack direction={"row"} justifyContent={"space-between"}>
-              <Typography variant="h6">Enrolled Courses</Typography>
-              <Button variant="contained" startIcon={<AddIcon />} onClick={handleClickOpen}>
-                Add course
-              </Button>
-            </Stack>
-
-            <EnrolledCoursesDialog open={open} handleClose={handleClose} />
-
-            <Stack direction={"row"} gap={1}>
-              {enrolledCourses.map((field, index) => (
-                <div key={field.course}>
-                  <Chip key={field.course} label={field.course} onDelete={() => remove(index)} />
-                </div>
               ))}
-            </Stack>
+            </div>
+          </Dialog>
+        </div>
 
-            <Button
-              disabled={!isValid}
-              variant="contained"
-              type="submit"
-              loading={isSubmitting || showRedirecting}
-              loadingPosition="end"
-            >
-              {showRedirecting ? "Redirecting to log in page..." : "Create New User"}
-            </Button>
-            {errors.root && <Alert severity="error">{errors.root.message}</Alert>}
-          </Box>
-        </FormControl>
-      </BasicContainer>
-      <Snackbar
-        open={snackBarOpen}
-        autoHideDuration={6000}
-        onClose={(event, reason) => handleSBClose(event, reason)}
-      >
-        <Alert severity="success" variant="filled" sx={{ width: "100%" }}>
-          New User Registered!
-        </Alert>
-      </Snackbar>
-    </Box>
+        <hr className="m-3" />
+
+        <Button aria-disabled={!isValid} type="submit" className="bg-studyseed-blue">
+          {isSubmitting ? <Spinner /> : "Create New User"}
+        </Button>
+        {errors.root && <div>{errors.root.message}</div>}
+      </FieldGroup>
+    </form>
   );
 }

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { Copy, Trash2 } from "lucide-react";
-import { ButtonBase, Typography } from "@mui/material";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import {
@@ -21,8 +21,10 @@ import {
   DialogClose,
   DialogContent,
   DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useLocalStorage } from "usehooks-ts";
 
 type DeleteUserBody = {
   userid: string;
@@ -50,6 +52,7 @@ interface UserTableProps {
 
 export default function UserTable({ paginatedUsers, caption }: UserTableProps) {
   const [selectedUser, setSelectedUser] = useState<ZodUserSchema | undefined>(undefined);
+  const [users, setUsers] = useLocalStorage<ZodUserSchema[]>("new-users", []);
   const queryClient = useQueryClient();
 
   const { mutate } = useMutation<
@@ -59,10 +62,13 @@ export default function UserTable({ paginatedUsers, caption }: UserTableProps) {
   >({
     mutationFn: deleteUserFn,
     onSuccess: (data: { message: string }) => {
+      setUsers(users.filter((user) => user.userid !== selectedUser?.userid));
+      setSelectedUser(undefined);
       queryClient.invalidateQueries({ queryKey: ["all-users"] });
       toast.success(`${data.message}`);
     },
     onError: (error: Error & { status?: number }) => {
+      setSelectedUser(undefined);
       console.error(`Error deleting user. ${error}`);
       toast.error(`${error}`);
     },
@@ -82,61 +88,59 @@ export default function UserTable({ paginatedUsers, caption }: UserTableProps) {
 
   return (
     <Dialog>
+      <DialogTitle className="sr-only" />
       <DialogContent>
         <DialogHeader>Action</DialogHeader>
-        <Typography id="server-modal-description" sx={{ pt: 2 }}>
+        <p id="server-modal-description">
           Are you sure you want to delete{" "}
           <strong>
             {selectedUser?.first_name} {selectedUser?.last_name}
           </strong>
           ? This action cannot be undone.
-        </Typography>
+        </p>
         <DialogClose asChild>
           <Button onClick={handleDeleteUser}>Confirm</Button>
         </DialogClose>
       </DialogContent>
 
       <Table>
-        <TableCaption>
-          {!!caption
-            ? caption
-            : paginatedUsers?.length > 0
-            ? "A list of recently added users"
-            : "No users have been added yet"}
-        </TableCaption>
+        {caption && <TableCaption>{caption}</TableCaption>}
 
         <TableHeader>
           <TableRow>
             <TableHead className="w-[100px]">User ID</TableHead>
             <TableHead>First Name</TableHead>
             <TableHead>Last Name</TableHead>
-            <TableHead className="text-right">Course Enrolled</TableHead>
+            <TableHead>Topics</TableHead>
+            <TableHead className="text-right">Courses</TableHead>
           </TableRow>
         </TableHeader>
 
         <TableBody>
           {paginatedUsers?.map((user, index) => (
             <TableRow key={`${index} - ${user}`}>
-              <TableCell className="font-medium flex gap-2">
-                <ButtonBase>
+              <TableCell className="font-medium flex items-center gap-2">
+                <Button variant="ghost">
                   <Copy size={15} onClick={() => handleCopyUserID(user.userid)} />
-                </ButtonBase>
+                </Button>
 
                 {user.userid}
               </TableCell>
               <TableCell>{user.first_name}</TableCell>
               <TableCell>{user.last_name}</TableCell>
-              <TableCell className="text-right">{user?.enrolled_courses?.join(", ")}</TableCell>
-              <TableCell className="font-medium flex gap-2">
+              <TableCell>{user.courses?.join(", ")}</TableCell>
+              {/* <TableCell className="text-right"></TableCell> */}
+              <TableCell className="flex items-center font-medium gap-2 justify-end">
+                {user.enrolled_courses?.join(", ")}
                 <DialogTrigger asChild>
-                  <ButtonBase>
-                    <Trash2
-                      size={15}
-                      onClick={() => {
-                        setSelectedUser(user);
-                      }}
-                    />
-                  </ButtonBase>
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setSelectedUser(user);
+                    }}
+                  >
+                    <Trash2 size={15} />
+                  </Button>
                 </DialogTrigger>
               </TableCell>
             </TableRow>

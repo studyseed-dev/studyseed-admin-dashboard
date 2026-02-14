@@ -1,7 +1,8 @@
 import mongoose, { Schema } from "mongoose";
 
 import { Course } from "@/enums/courses.enum";
-import { ProgressModel, courses, topics } from "@/lib/types";
+import { ProgressModel } from "@/lib/types";
+import { Topic } from "@/enums/topics.enum";
 
 export interface IUser extends mongoose.Document {
   first_name: string;
@@ -9,7 +10,7 @@ export interface IUser extends mongoose.Document {
   userid: string;
   enrolled_courses: Course[];
   // courses is more like Topics, but was named quite early on
-  courses: string[];
+  courses: Topic[];
   progress: Partial<ProgressModel>;
 }
 
@@ -26,17 +27,19 @@ const UserSchema = new mongoose.Schema<IUser>(
     },
     enrolled_courses: {
       type: [String],
-      enum: courses,
+      enum: Object.values(Course),
     },
     courses: {
-      default: [...topics],
+      type: [String],
+      enum: Object.values(Topic),
+      required: true,
     },
     progress: {
       type: Schema.Types.Mixed,
       required: true,
     },
   },
-  { minimize: false }
+  { minimize: false },
 );
 
 export const User = mongoose.models.Users || mongoose.model("Users", UserSchema, "users");

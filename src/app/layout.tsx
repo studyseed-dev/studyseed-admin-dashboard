@@ -3,9 +3,11 @@ import { Toaster } from "sonner";
 import { Inter } from "next/font/google";
 
 import NavBar from "@/components/NavBar";
-import Providers from "@/components/Providers";
 import { AuthProvider } from "@/context/AuthContext";
+import { QuestionsProvider } from "@/context/QuestionsContext";
+
 import "./globals.css";
+import QueryProvider from "./provider/QueryProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -18,17 +20,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <AuthProvider>
-      <html lang="en">
-        <body className={`${inter.className}`}>
-          <Providers>
-            <NavBar />
-            {children}
-            <Analytics />
-            <Toaster />
-          </Providers>
-        </body>
-      </html>
-    </AuthProvider>
+    <QueryProvider>
+      <AuthProvider>
+        <QuestionsProvider>
+          <html lang="en">
+            <body className={`${inter.className}`}>
+              <NavBar />
+              {children}
+              <Analytics />
+              <Toaster />
+            </body>
+          </html>
+        </QuestionsProvider>
+      </AuthProvider>
+    </QueryProvider>
   );
 }

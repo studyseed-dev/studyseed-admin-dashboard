@@ -6,4 +6,6 @@ export enum DashboardPagePath {
   CREATE_NEW_USER = "/manage/create-user",
   USERS_OVERVIEW = "/manage/users-overview",
   HOME = "/",
+  MANAGE_QUESTIONS = "/manage/questions",
+  MANAGE = "/manage",
 }

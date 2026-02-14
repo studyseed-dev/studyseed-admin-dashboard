@@ -1,5 +1,5 @@
+import { verifyAuthToken } from "@/lib/auth";
 import { parse } from "cookie";
-import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
@@ -11,7 +11,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+    const decoded = verifyAuthToken(token);
 
     return NextResponse.json({ message: "Authenticated", user: decoded });
   } catch (error) {

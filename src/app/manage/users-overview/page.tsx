@@ -1,10 +1,10 @@
 "use client";
-import BasicContainer from "@/components/BasicContainer";
+
 import { ZodUserSchema } from "@/lib/adminSchema";
 import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import { Input } from "@/components/ui/input";
-import { Box } from "@mui/material";
+
 import Loading from "../components/loading";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
@@ -33,7 +33,7 @@ const getAllUsers = async (queryKey: [string, string, number]) => {
   const page = queryKey[2];
   const searchTerm = queryKey[1];
   const response = await fetch(
-    `${DashboardAPIPath.GET_PAGINATED_USERS}?searchTerm=${searchTerm}&page=${page}`
+    `${DashboardAPIPath.GET_PAGINATED_USERS}?searchTerm=${searchTerm}&page=${page}`,
   );
   if (response.ok) {
     const resObj = await response.json();
@@ -52,14 +52,14 @@ export default function UserOverview() {
     placeholderData: keepPreviousData,
   });
 
-  const totalPages = Math.ceil((data?.totalUsers ?? 0) / (data?.limitNumber ?? 0));
+  const totalPages = data?.limitNumber ? Math.ceil(data.totalUsers / data.limitNumber) : 0;
   const pageArray = !!totalPages && new Array(totalPages).fill(0);
 
   const paginatedUsers = data?.users?.filter(
     (user) =>
       user.userid.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.last_name.toLowerCase().includes(searchTerm.toLowerCase())
+      user.last_name.toLowerCase().includes(searchTerm.toLowerCase()),
   ) as ZodUserSchema[];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,59 +69,55 @@ export default function UserOverview() {
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        px: 4,
-        py: 2,
-        gap: 2,
-        flex: 1,
-      }}
-    >
-      <BasicContainer sx={{ gap: 2, width: "500px", p: 3 }}>
-        <Input
-          style={{ height: "4em" }}
-          type="search"
-          placeholder="Filter users by ID or Name"
-          onChange={(e) => handleChange(e)}
-        />
-        <UserTable paginatedUsers={paginatedUsers} caption="All registered users" />
-        <Pagination>
-          <PaginationContent>
+    <div className="w-full p-6 flex flex-col gap-3">
+      <h2>All Registered Users</h2>
+      <Input
+        type="search"
+        placeholder="Filter users by ID or Name"
+        onChange={(e) => handleChange(e)}
+        className="w-1/4 mb-3"
+      />
+      <UserTable paginatedUsers={paginatedUsers} />
+      <Pagination>
+        <PaginationContent>
+          {currentPage > 1 && (
             <PaginationItem>
               <PaginationPrevious
                 href="#"
-                isActive={currentPage !== 1}
+                aria-disabled={currentPage <= 1}
                 onClick={() => setCurrentPage((prev) => prev - 1)}
               />
             </PaginationItem>
+          )}
 
-            {pageArray &&
-              pageArray?.map((_, index) => {
-                const isActive = index + 1 === currentPage;
-                return (
-                  <PaginationItem key={`page ${index + 1}`}>
-                    <PaginationLink
-                      href="#"
-                      isActive={isActive}
-                      onClick={() => setCurrentPage(index + 1)}
-                    >
-                      {index + 1}
-                    </PaginationLink>
-                  </PaginationItem>
-                );
-              })}
+          {pageArray &&
+            pageArray?.map((_, index) => {
+              const isActive = index + 1 === currentPage;
+              return (
+                <PaginationItem key={`page ${index + 1}`}>
+                  <PaginationLink
+                    href="#"
+                    isActive={isActive}
+                    onClick={() => setCurrentPage(index + 1)}
+                  >
+                    {index + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              );
+            })}
 
+          {currentPage < totalPages && (
             <PaginationItem>
               <PaginationNext
                 href="#"
-                isActive={currentPage !== totalPages}
-                onClick={() => setCurrentPage((prev) => prev + 1)}
+                onClick={() => {
+                  setCurrentPage((prev) => prev + 1);
+                }}
               />
             </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      </BasicContainer>
-    </Box>
+          )}
+        </PaginationContent>
+      </Pagination>
+    </div>
   );
 }
