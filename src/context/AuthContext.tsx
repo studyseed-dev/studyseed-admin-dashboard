@@ -19,7 +19,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     const checkAuth = async () => {
       try {
-        const res = await fetch("/api/auth"); // API to validate token
+        const res = await fetch("/api/auth", {
+          credentials: "include",
+        }); // API to validate token
 
         if (res.status === 401) {
           setIsAuthenticated(false);

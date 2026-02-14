@@ -61,7 +61,9 @@ export default function NavBar() {
     const logout = async () => {
       try {
         // note: include / in front of the URL to make it absolute, otherwise it will be relative to the current path
-        await fetch("/api/logout");
+        await fetch("/api/logout", {
+          credentials: "include",
+        });
         localStorage.clear();
         setIsAuthenticated(false);
       } catch (error) {

@@ -34,6 +34,9 @@ const getAllUsers = async (queryKey: [string, string, number]) => {
   const searchTerm = queryKey[1];
   const response = await fetch(
     `${DashboardAPIPath.GET_PAGINATED_USERS}?searchTerm=${searchTerm}&page=${page}`,
+    {
+      credentials: "include",
+    },
   );
   if (response.ok) {
     const resObj = await response.json();
