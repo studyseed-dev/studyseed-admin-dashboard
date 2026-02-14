@@ -8,7 +8,6 @@ import { useAuth } from "@/context/AuthContext";
 import { LoginResponse } from "@/app/api/login/route";
 import { useLocalStorage } from "usehooks-ts";
 import { DashboardAPIPath } from "@/enums/apiPaths.enum";
-import { useRouter } from "next/navigation";
 import { DashboardPagePath } from "@/enums/pagePaths.enum";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -16,7 +15,6 @@ import { Field, FieldLabel } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
 
 export default function Login() {
-  const router = useRouter();
   const { setIsAuthenticated } = useAuth();
   const [adminProfile, setAdminProfile] = useLocalStorage<ZodAdminSchema | null>(
     "admin-profile",
@@ -66,7 +64,7 @@ export default function Login() {
 
         setError("root", {
           type: "manual",
-          message: `${errorData.error.message}`,
+          message: `${errorData.error}`,
         });
         setFocus("email");
         return;
@@ -74,8 +72,8 @@ export default function Login() {
       const result: LoginResponse = await response.json();
       if (!adminProfile) setAdminProfile(result?.adminUser);
       setIsAuthenticated(true);
-      router.refresh();
-      router.push(DashboardPagePath.CREATE_NEW_USER);
+
+      window.location.href = DashboardPagePath.CREATE_NEW_USER;
     } catch (error) {
       console.error("Unexpected error:", error);
     }
