@@ -111,7 +111,7 @@ export default function UserTable({ paginatedUsers, caption }: UserTableProps) {
             <TableHead className="w-[100px]">User ID</TableHead>
             <TableHead>First Name</TableHead>
             <TableHead>Last Name</TableHead>
-            <TableHead>Topics</TableHead>
+            <TableHead>Subjects</TableHead>
             <TableHead className="text-right">Courses</TableHead>
           </TableRow>
         </TableHeader>
@@ -120,8 +120,8 @@ export default function UserTable({ paginatedUsers, caption }: UserTableProps) {
           {paginatedUsers?.map((user, index) => (
             <TableRow key={`${index} - ${user}`}>
               <TableCell className="font-medium flex items-center gap-2">
-                <Button variant="ghost">
-                  <Copy size={15} onClick={() => handleCopyUserID(user.userid)} />
+                <Button variant="ghost" onClick={() => handleCopyUserID(user.userid)}>
+                  <Copy size={15} />
                 </Button>
 
                 {user.userid}
@@ -129,7 +129,6 @@ export default function UserTable({ paginatedUsers, caption }: UserTableProps) {
               <TableCell>{user.first_name}</TableCell>
               <TableCell>{user.last_name}</TableCell>
               <TableCell>{user.courses?.join(", ")}</TableCell>
-              {/* <TableCell className="text-right"></TableCell> */}
               <TableCell className="flex items-center font-medium gap-2 justify-end">
                 {user.enrolled_courses?.join(", ")}
                 <DialogTrigger asChild>

@@ -3,8 +3,7 @@ import type { NextRequest } from "next/server";
 import { parse } from "cookie";
 import { jwtVerify } from "jose";
 import { DashboardPagePath } from "./enums/pagePaths.enum";
-
-const secret = new TextEncoder().encode(process.env.JWT_SECRET as string);
+import { secret, verifyAuthToken } from "./lib/auth";
 
 export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -31,7 +30,7 @@ export default async function middleware(req: NextRequest) {
   }
 
   try {
-    await jwtVerify(token, new TextEncoder().encode(process.env.JWT_SECRET as string));
+    await verifyAuthToken(token);
     return NextResponse.next();
   } catch (error) {
     console.error(error);
