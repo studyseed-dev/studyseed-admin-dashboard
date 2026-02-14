@@ -52,6 +52,7 @@ export default function CreateUserForm() {
     },
     mode: "onChange",
   });
+
   // Topic checkbox logic
   const topicValues = Object.values(Topic);
   const handleTopicCheckBoxChange = (topic: Topic, checked: boolean) => {
