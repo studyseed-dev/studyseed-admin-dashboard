@@ -80,7 +80,7 @@ export default function NavBar() {
   return (
     <div>
       <div className="flex justify-between items-center p-3 shadow-md">
-        <Link href="/">
+        <Link href={DashboardPagePath.HOME}>
           <Image
             alt="studyseed logo"
             src={"https://ik.imagekit.io/jbyap95/studyseed-logo-original.png"}
@@ -100,7 +100,6 @@ export default function NavBar() {
             <DropdownMenuContent className="mr-8">
               <DropdownMenuLabel>Admin: {adminProfile.username}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-
               <DropdownMenuItem disabled>{adminProfile.email}</DropdownMenuItem>
               <DropdownMenuItem>
                 <button
@@ -110,6 +109,9 @@ export default function NavBar() {
                   <LogOut />
                   <p>Log Out</p>
                 </button>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-studyseed-blue">
+                Version {process.env.NEXT_PUBLIC_APP_VERSION}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

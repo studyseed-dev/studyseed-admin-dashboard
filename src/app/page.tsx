@@ -14,7 +14,6 @@ export default function Home() {
         <h1>Welcome to Studyseed User Manager</h1>
         <p className="mb-2">Easily add new users to the system or browse existing user accounts.</p>
       </div>
-
       <Link
         href={isAuthenticated ? DashboardPagePath.CREATE_NEW_USER : DashboardPagePath.LOGIN}
         passHref
